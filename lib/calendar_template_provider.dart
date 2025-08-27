@@ -36,7 +36,6 @@ class CalendarTemplateProvider extends ChangeNotifier {
     // } finally {
     //   _isLoading = false;
     //   debugPrint("Notifying listeners from CalendarTemplateProvider");
-    //   notifyListeners();
     // }
   }
 

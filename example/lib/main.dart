@@ -3,6 +3,8 @@ import 'package:legacy_calendar/legacy_calendar.dart';
 import 'package:legacy_calendar/calendar_template_provider.dart';
 import 'package:legacy_calendar/scale_notifier.dart';
 import 'package:provider/provider.dart';
+import 'package:legacy_calendar/calendar_month_repository.dart';
+import 'package:legacy_calendar/dummy_api_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,6 +19,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ScaleNotifier()),
         ChangeNotifierProvider(create: (_) => CalendarTemplateProvider()..loadTemplatesIfNeeded()),
+        Provider<CalendarMonthRepository>(
+          create: (_) => CalendarMonthRepository(apiInterface: DummyApiInterface()),
+        ),
       ],
       child: MaterialApp(
         title: 'Legacy Calendar Example',

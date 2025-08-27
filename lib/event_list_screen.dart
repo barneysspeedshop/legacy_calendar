@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animations/animations.dart'; // Import for PageTransitionSwitcher and SharedAxisTransition
 // Import TabManager
 import 'package:legacy_calendar/scale_notifier.dart';
+import 'package:legacy_calendar/calendar_month_repository.dart';
 // import 'package:legacy_calendar/color_utils.dart'; // Already imported via legacy_calendar.dart
 
 class EventListScreen extends StatefulWidget {
@@ -43,7 +44,8 @@ class _EventListScreenState extends State<EventListScreen> {
   late List<CalendarMonthEvent> _currentEvents; // Changed type
   bool _isLoading = false;
   bool _isNavigatingForward = true; // true for next day, false for previous day
-  // late ApiService _apiService; // Commented out
+  late CalendarMonthRepository _calendarMonthRepository;
+  final Map<DateTime, List<CalendarMonthEvent>> _dayCache = {}; // Cache for the dialog session
 
   String _getFormattedDate(DateTime date) {
     // Reinstating the detailed date format from your original modal
@@ -77,16 +79,19 @@ class _EventListScreenState extends State<EventListScreen> {
     super.initState();
     _currentDate = widget.date;
     _currentEvents = widget.events;    
-    // _apiService = getIt<ApiService>(); // Commented out
+    // Use DateUtils.dateOnly to ensure the key for the cache doesn't include time.
+    _dayCache[DateUtils.dateOnly(widget.date)] = widget.events;
+    _calendarMonthRepository = Provider.of<CalendarMonthRepository>(context, listen: false);
   }
 
   Future<void> _fetchEventsForDay(DateTime day) async {
-    if (widget.templateId == null) {
-      debugPrint("[EventListScreen] Template ID is null. Cannot fetch events.");
-      // Optionally, clear events or show an error
+    final dayOnly = DateUtils.dateOnly(day);
+
+    // First, check if we have already fetched and cached the events for this day during this dialog session.
+    if (_dayCache.containsKey(dayOnly)) {
       if (mounted) {
         setState(() {
-          _currentEvents = [];
+          _currentEvents = _dayCache[dayOnly]!;
           _isLoading = false;
         });
       }
@@ -98,72 +103,28 @@ class _EventListScreenState extends State<EventListScreen> {
       _isLoading = true;
     });
 
-    // final startDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
-    //   DateTime(day.year, day.month, day.day).toUtc(),
-    // );
-    // final endDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(
-    //   DateTime(day.year, day.month, day.day, 23, 59, 59, 999).toUtc(),
-    // );
-
-    // final endpoint = '/f5/api/element-calendar/calendar-view-data';
-    // final params = {
-    //   'templateId': widget.templateId,
-    //   'startDate': startDate,
-    //   'endDate': endDate,
-    // };
-
-    // try {
-    //   final data = await _apiService.get(endpoint, params: params);
-    //   if (!mounted) return;
-    //   setState(() {
-    //     _currentEvents = data.map<CalendarMonthEvent>((e) { // Changed type
-    //       return CalendarMonthEvent( // Changed to CalendarMonthEvent
-    //       startDate: DateTime.parse(e['startDateIso'] + 'Z'),
-    //       endDate: DateTime.parse(e['endDateIso'] + 'Z'),
-    //       title: e['title'],
-    //       background: parseColorHex(e['statusColor'], Colors.blue), // Use utility
-    //       iconUrl: e['iconUrl'],
-    //       textColor: parseColorHex(e['statusTextColor'], Colors.white), // Use utility
-    //       id: e['id'], // Changed from elementId to id
-    //     );
-    //     }).toList();
-    //     _isLoading = false;
-    //   });
-    // } catch (e) {
-    //   debugPrint('[EventListScreen] Error fetching events for $day: $e');
-    //   if (!mounted) return;
-    //   setState(() {
-    //     _isLoading = false;
-    //     // Optionally, show an error message to the user
-    //   });
-    // }
-
-      // Mock data for now
-      await Future.delayed(const Duration(milliseconds: 100)); // Simulate network delay
-      if (mounted) {
-        setState(() {
-          _currentEvents = [
-            CalendarMonthEvent(
-              id: '3',
-              startDate: day.subtract(const Duration(hours: 2)),
-              endDate: day.add(const Duration(hours: 1)),
-              title: 'Day Event 1',
-              background: Colors.orange,
-              textColor: Colors.white,
-            ),
-            CalendarMonthEvent(
-              id: '4',
-              startDate: day.add(const Duration(hours: 5)),
-              endDate: day.add(const Duration(hours: 7)),
-              title: 'Day Event 2',
-              background: Colors.purple,
-              textColor: Colors.white,
-            ),
-          ];
-          _isLoading = false;
-        });
-      }
-
+    try {
+      final fetchedEvents = await _calendarMonthRepository.fetchDayEvents(
+        templateId: widget.templateId,
+        displayDate: day,
+        parentElementsOnly: false, // Assuming we want all events, not just parent elements
+      );
+      if (!mounted) return;
+      _dayCache[dayOnly] = fetchedEvents; // Cache the fetched events for this session.
+      setState(() {
+        _currentEvents = fetchedEvents;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('[EventListScreen] Error fetching events for $day: $e');
+      if (!mounted) return;
+      _dayCache[dayOnly] = []; // On error, cache an empty list to prevent re-fetching.
+      setState(() {
+        _isLoading = false;
+        // Optionally, show an error message to the user
+        _currentEvents = [];
+      });
+    }
   }
 
   void _navigateToPreviousDay() {
