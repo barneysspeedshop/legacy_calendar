@@ -5,7 +5,6 @@ import 'package:legacy_calendar/calendar_month_event.dart'; // Import CalendarMo
 import 'package:legacy_calendar/calendar_template_provider.dart';
 import 'package:legacy_calendar/calendar_month_repository.dart';
 import 'package:legacy_calendar/abstract_api_interface.dart';
-import 'package:legacy_calendar/dummy_api_interface.dart';
 import 'package:provider/provider.dart';
 
 /// A [ChangeNotifier] that manages the state and logic for the calendar month view.

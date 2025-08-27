@@ -135,14 +135,14 @@ class CalendarToolbar extends StatelessWidget {
     final Color toolbarBackgroundColor = isDarkMode
         ? theme.colorScheme.surfaceContainerHighest
         : flutter_material.Colors.white;
-    final Color iconColor = const Color(0xFF50a7d1); // Specific color for icons
+    const Color iconColor = Color(0xFF50a7d1); // Specific color for icons
     final Color textColor = theme.textTheme.bodyLarge?.color ??
         (isDarkMode
             ? flutter_material.Colors.white
             : flutter_material.Colors.black);
 
-    final Color buttonBackgroundColor = const Color(0xFF3b89b9);
-    final Color buttonTextColor = flutter_material.Colors.white;
+    const Color buttonBackgroundColor = Color(0xFF3b89b9);
+    const Color buttonTextColor = flutter_material.Colors.white;
 
     // Define all possible toolbar actions
     final _ToolbarAction refreshAction = _ToolbarAction(

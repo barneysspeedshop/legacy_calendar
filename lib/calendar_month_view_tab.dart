@@ -9,7 +9,6 @@ import 'package:legacy_calendar/event_list_screen.dart';
 import 'package:legacy_calendar/scale_notifier.dart';
 
 import 'package:legacy_calendar/calendar_template_provider.dart';
-import 'package:legacy_calendar/template_selector.dart';
 import 'calendar_month_view_model.dart';
 import 'package:provider/provider.dart'; // Keep provider for context.read/watch
 
@@ -39,7 +38,7 @@ class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
   bool get wantKeepAlive => true;
 
   late final CalendarMonthViewModel _viewModel;
-  CalendarView _currentView = CalendarView.month; // New
+// New
 
   @override
   void initState() {

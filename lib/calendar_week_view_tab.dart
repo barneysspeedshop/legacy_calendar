@@ -9,7 +9,6 @@ import 'package:legacy_calendar/event_list_screen.dart';
 import 'package:legacy_calendar/scale_notifier.dart';
 
 import 'package:legacy_calendar/calendar_template_provider.dart';
-import 'package:legacy_calendar/template_selector.dart';
 import 'calendar_week_view_model.dart';
 import 'package:provider/provider.dart'; // Keep provider for context.read/watch
 import 'week_grid_calendar.dart';
@@ -40,7 +39,7 @@ class _CalendarWeekViewTabState extends State<CalendarWeekViewTab>
   bool get wantKeepAlive => true;
 
   late final CalendarWeekViewModel _viewModel;
-  CalendarView _currentView = CalendarView.week; // New, initialized to week
+// New, initialized to week
 
   @override
   void initState() {

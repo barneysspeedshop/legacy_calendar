@@ -5,8 +5,7 @@ import 'package:legacy_calendar/legacy_calendar.dart'; // Corrected import
 import 'package:legacy_calendar/event_list_screen.dart';
 import 'package:legacy_calendar/scale_notifier.dart';
 import 'package:legacy_calendar/calendar_template_provider.dart';
-import 'package:legacy_calendar/template_selector.dart';
-import 'package:legacy_calendar/calendar_toolbar.dart'; // Import CalendarToolbar for CalendarView enum
+// Import CalendarToolbar for CalendarView enum
 import 'package:legacy_calendar/calendar_month_event.dart'; // Import CalendarMonthEvent
 import 'calendar_day_view_model.dart';
 import 'package:provider/provider.dart'; // Keep provider for context.read/watch
