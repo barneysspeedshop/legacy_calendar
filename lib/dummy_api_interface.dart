@@ -48,12 +48,15 @@ class DummyApiInterface implements AbstractApiInterface {
     required DateTime displayDate,
     required bool parentElementsOnly,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate network delay
     final startOfMonth = DateTime.utc(displayDate.year, displayDate.month, 1);
-    final endOfMonth = DateTime.utc(displayDate.year, displayDate.month + 1, 0).add(const Duration(days: 1));
+    final endOfMonth = DateTime.utc(displayDate.year, displayDate.month + 1, 0)
+        .add(const Duration(days: 1));
 
     return _allDummyEvents.where((event) {
-      return event.startDate.isBefore(endOfMonth) && event.endDate.isAfter(startOfMonth);
+      return event.startDate.isBefore(endOfMonth) &&
+          event.endDate.isAfter(startOfMonth);
     }).toList();
   }
 
@@ -63,12 +66,16 @@ class DummyApiInterface implements AbstractApiInterface {
     required DateTime displayDate,
     required bool parentElementsOnly,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    final startOfWeek = displayDate.subtract(Duration(days: displayDate.weekday % 7)); // Assuming Sunday is the first day of the week
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate network delay
+    final startOfWeek = displayDate.subtract(Duration(
+        days: displayDate.weekday %
+            7)); // Assuming Sunday is the first day of the week
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
 
     return _allDummyEvents.where((event) {
-      return event.startDate.isBefore(endOfWeek) && event.endDate.isAfter(startOfWeek);
+      return event.startDate.isBefore(endOfWeek) &&
+          event.endDate.isAfter(startOfWeek);
     }).toList();
   }
 
@@ -78,12 +85,15 @@ class DummyApiInterface implements AbstractApiInterface {
     required DateTime displayDate,
     required bool parentElementsOnly,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    final startOfDay = DateTime.utc(displayDate.year, displayDate.month, displayDate.day);
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate network delay
+    final startOfDay =
+        DateTime.utc(displayDate.year, displayDate.month, displayDate.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     return _allDummyEvents.where((event) {
-      return event.startDate.isBefore(endOfDay) && event.endDate.isAfter(startOfDay);
+      return event.startDate.isBefore(endOfDay) &&
+          event.endDate.isAfter(startOfDay);
     }).toList();
   }
 }

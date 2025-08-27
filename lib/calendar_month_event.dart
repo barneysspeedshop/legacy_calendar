@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:legacy_calendar/color_utils.dart'; // Ensure color_utils is exported by the library
 

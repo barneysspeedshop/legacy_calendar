@@ -7,7 +7,8 @@ class EventTooltipWrapper extends StatefulWidget {
   final Widget child;
   final CalendarMonthEvent event;
 
-  const EventTooltipWrapper({super.key, required this.child, required this.event});
+  const EventTooltipWrapper(
+      {super.key, required this.child, required this.event});
 
   @override
   EventTooltipWrapperState createState() => EventTooltipWrapperState();
@@ -32,24 +33,31 @@ class EventTooltipWrapperState extends State<EventTooltipWrapper> {
           child: Material(
             elevation: 4.0,
             borderRadius: BorderRadius.circular(4),
-            color: Colors.transparent, // Make Material transparent to show Container's decor
+            color: Colors
+                .transparent, // Make Material transparent to show Container's decor
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 480), // Style: max-width
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+              constraints:
+                  const BoxConstraints(maxWidth: 480), // Style: max-width
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
               decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[200],
+                color: theme.brightness == Brightness.dark
+                    ? Colors.grey[800]
+                    : Colors.grey[200],
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: theme.dividerColor),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // Important for Column in Overlay
+                mainAxisSize:
+                    MainAxisSize.min, // Important for Column in Overlay
                 children: [
                   Text(event.title, style: boldTextStyle),
                   if (statusText.isNotEmpty && taskColor != Colors.transparent)
                     Container(
                       margin: const EdgeInsets.only(top: 2, bottom: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: taskColor,
                         borderRadius: BorderRadius.circular(12),
@@ -57,9 +65,11 @@ class EventTooltipWrapperState extends State<EventTooltipWrapper> {
                       child: Text(
                         statusText,
                         style: textStyle?.copyWith(
-                          color: ThemeData.estimateBrightnessForColor(taskColor) == Brightness.dark
-                              ? Colors.white
-                              : Colors.black,
+                          color:
+                              ThemeData.estimateBrightnessForColor(taskColor) ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black,
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),
@@ -68,8 +78,12 @@ class EventTooltipWrapperState extends State<EventTooltipWrapper> {
                   const SizedBox(height: 4),
                   // debugPrint('Event Start Date (UTC): ${event.startDate.toIso8601String()}');
                   // debugPrint('Event End Date (UTC): ${event.endDate.toIso8601String()}');
-                  Text('Start: ${DateFormat.yMd().add_jm().format(event.startDate)}', style: textStyle),
-                  Text('End: ${DateFormat.yMd().add_jm().format(event.endDate)}', style: textStyle),
+                  Text(
+                      'Start: ${DateFormat.yMd().add_jm().format(event.startDate)}',
+                      style: textStyle),
+                  Text(
+                      'End: ${DateFormat.yMd().add_jm().format(event.endDate)}',
+                      style: textStyle),
                 ],
               ),
             ),

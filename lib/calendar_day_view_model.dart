@@ -14,10 +14,13 @@ class CalendarDayViewModel extends ChangeNotifier {
   final CalendarTemplateProvider? _templateProvider;
   bool _isInitialLoad = true;
 
-  CalendarDayViewModel(BuildContext context, {AbstractApiInterface? apiInterface, DateTime? initialDate})
-      : _calendarRepository = context.read<CalendarMonthRepository>(), // Read from Provider
+  CalendarDayViewModel(BuildContext context,
+      {AbstractApiInterface? apiInterface, DateTime? initialDate})
+      : _calendarRepository =
+            context.read<CalendarMonthRepository>(), // Read from Provider
         _templateProvider = context.read<CalendarTemplateProvider?>(),
-        _displayDate = initialDate ?? DateTime.now().toUtc() { // Initialize _displayDate here
+        _displayDate = initialDate ?? DateTime.now().toUtc() {
+    // Initialize _displayDate here
     _templateProvider?.addListener(navigateToToday);
   }
 

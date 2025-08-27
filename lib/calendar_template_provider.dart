@@ -56,19 +56,28 @@ class CalendarTemplateProvider extends ChangeNotifier {
 
 class DummyApi implements AbstractApiInterface {
   @override
-  Future<List<CalendarMonthEvent>> fetchDayEvents({required DateTime displayDate, required bool parentElementsOnly, String? templateId}) async {
+  Future<List<CalendarMonthEvent>> fetchDayEvents(
+      {required DateTime displayDate,
+      required bool parentElementsOnly,
+      String? templateId}) async {
     // Dummy implementation
     return [];
   }
 
   @override
-  Future<List<CalendarMonthEvent>> fetchMonthEvents({required DateTime displayDate, required bool parentElementsOnly, String? templateId}) async {
+  Future<List<CalendarMonthEvent>> fetchMonthEvents(
+      {required DateTime displayDate,
+      required bool parentElementsOnly,
+      String? templateId}) async {
     // Dummy implementation
     return [];
   }
 
   @override
-  Future<List<CalendarMonthEvent>> fetchWeekEvents({required DateTime displayDate, required bool parentElementsOnly, String? templateId}) async {
+  Future<List<CalendarMonthEvent>> fetchWeekEvents(
+      {required DateTime displayDate,
+      required bool parentElementsOnly,
+      String? templateId}) async {
     // Dummy implementation
     return [];
   }

@@ -1,39 +1,60 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# legacy_calendar
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+[![Pub Version](https://img.shields.io/pub/v/legacy_calendar)](https://pub.dev/packages/legacy_calendar)
+[![Live Demo](https://img.shields.io/badge/live-demo-brightgreen)](https://barneysspeedshop.github.io/legacy_calendar/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+A customizable and feature-rich calendar package for Flutter, providing day, week, and month views, event management, and a flexible API for data integration.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+[![Legacy Calendar Example](https://github.com/barneysspeedshop/legacy_calendar/raw/main/assets/example.gif)](https://barneysspeedshop.github.io/legacy_calendar/)
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+*   **Multiple Calendar Views:** Navigate between distinct views for day, week, and month.
+*   **Event Management:** Easily display, create, and manage events within the calendar.
+*   **Interactive Tooltips:** Events can have interactive tooltips to display detailed information on hover or tap.
+*   **Responsive & Customizable:** The calendar UI adapts to various screen sizes and orientations. A flexible templating system allows for custom layouts and designs.
+*   **Efficient State Management:** Built with the provider package to ensure a clean and scalable state management solution.
+*   **Smooth Animations:** Integrated animations for fluid UI transitions and a modern feel.
+*   **Extensible API:** Designed with a clear AbstractApiInterface to facilitate easy integration with different data sources, such as local data or a remote backend.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+To use this package, add `legacy_calendar` to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  legacy_calendar: ^0.0.1
+```
+
+Then, run `flutter pub get` in your terminal.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+A simple example of how to use the `LegacyCalendarWidget`:
 
 ```dart
-const like = 'sample';
+import 'package:flutter/material.dart';
+import 'package:legacy_calendar/legacy_calendar_widget.dart';
+
+class MyCalendarApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('My Calendar'),
+        ),
+        body: LegacyCalendarWidget(),
+      ),
+    );
+  }
+}
 ```
+
+For more detailed examples, please refer to the `/example` folder.
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+For more information, to report issues, or to contribute, please visit the official GitHub repository:
+[https://github.com/barneysspeedshop/legacy_calendar](https://github.com/barneysspeedshop/legacy_calendar)

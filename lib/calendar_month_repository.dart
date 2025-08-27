@@ -1,4 +1,3 @@
-
 import 'package:legacy_calendar/calendar_month_event.dart';
 import 'package:legacy_calendar/abstract_api_interface.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
@@ -46,13 +45,17 @@ class CalendarMonthRepository {
     );
 
     // Filter events for the specific week
-    final startOfWeek = displayDate.subtract(Duration(days: displayDate.weekday - 1)); // Assuming Monday is the first day of the week
+    final startOfWeek = displayDate.subtract(Duration(
+        days: displayDate.weekday -
+            1)); // Assuming Monday is the first day of the week
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
 
     return allMonthEvents.where((event) {
-      return event.startDate.isBefore(endOfWeek) && event.endDate.isAfter(startOfWeek);
+      return event.startDate.isBefore(endOfWeek) &&
+          event.endDate.isAfter(startOfWeek);
     }).toList();
   }
+
   Future<List<CalendarMonthEvent>> fetchDayEvents({
     String? templateId,
     required DateTime displayDate,
@@ -71,7 +74,8 @@ class CalendarMonthRepository {
     return allMonthEvents.where((event) {
       // The standard interval overlap check is: A.start < B.end && B.start < A.end
       // This handles multi-day events correctly.
-      final overlaps = event.startDate.isBefore(endOfDay) && event.endDate.isAfter(startOfDay);
+      final overlaps = event.startDate.isBefore(endOfDay) &&
+          event.endDate.isAfter(startOfDay);
 
       // We also add a check for events that start on the given day. This is a more robust
       // way to catch single-day events, especially if their end date representation is inconsistent

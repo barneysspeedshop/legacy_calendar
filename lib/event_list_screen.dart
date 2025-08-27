@@ -39,13 +39,15 @@ const double _baseEventItemHorizontalMargin = 12.0;
 const double _baseEventItemPadding = 8.0; // Assuming symmetric padding
 const double _baseEventIconSize = 32.0; // For event type icons
 const double _baseEventTitleFontSize = 14.0;
+
 class _EventListScreenState extends State<EventListScreen> {
   late DateTime _currentDate;
   late List<CalendarMonthEvent> _currentEvents; // Changed type
   bool _isLoading = false;
   bool _isNavigatingForward = true; // true for next day, false for previous day
   late CalendarMonthRepository _calendarMonthRepository;
-  final Map<DateTime, List<CalendarMonthEvent>> _dayCache = {}; // Cache for the dialog session
+  final Map<DateTime, List<CalendarMonthEvent>> _dayCache =
+      {}; // Cache for the dialog session
 
   String _getFormattedDate(DateTime date) {
     // Reinstating the detailed date format from your original modal
@@ -78,10 +80,11 @@ class _EventListScreenState extends State<EventListScreen> {
   void initState() {
     super.initState();
     _currentDate = widget.date;
-    _currentEvents = widget.events;    
+    _currentEvents = widget.events;
     // Use DateUtils.dateOnly to ensure the key for the cache doesn't include time.
     _dayCache[DateUtils.dateOnly(widget.date)] = widget.events;
-    _calendarMonthRepository = Provider.of<CalendarMonthRepository>(context, listen: false);
+    _calendarMonthRepository =
+        Provider.of<CalendarMonthRepository>(context, listen: false);
   }
 
   Future<void> _fetchEventsForDay(DateTime day) async {
@@ -107,10 +110,12 @@ class _EventListScreenState extends State<EventListScreen> {
       final fetchedEvents = await _calendarMonthRepository.fetchDayEvents(
         templateId: widget.templateId,
         displayDate: day,
-        parentElementsOnly: false, // Assuming we want all events, not just parent elements
+        parentElementsOnly:
+            false, // Assuming we want all events, not just parent elements
       );
       if (!mounted) return;
-      _dayCache[dayOnly] = fetchedEvents; // Cache the fetched events for this session.
+      _dayCache[dayOnly] =
+          fetchedEvents; // Cache the fetched events for this session.
       setState(() {
         _currentEvents = fetchedEvents;
         _isLoading = false;
@@ -118,7 +123,8 @@ class _EventListScreenState extends State<EventListScreen> {
     } catch (e) {
       debugPrint('[EventListScreen] Error fetching events for $day: $e');
       if (!mounted) return;
-      _dayCache[dayOnly] = []; // On error, cache an empty list to prevent re-fetching.
+      _dayCache[dayOnly] =
+          []; // On error, cache an empty list to prevent re-fetching.
       setState(() {
         _isLoading = false;
         // Optionally, show an error message to the user
@@ -161,7 +167,8 @@ class _EventListScreenState extends State<EventListScreen> {
     }
 
     if (_currentEvents.isEmpty) {
-      return LayoutBuilder( // Ensure "No events" message is scrollable for RefreshIndicator
+      return LayoutBuilder(
+        // Ensure "No events" message is scrollable for RefreshIndicator
         builder: (context, constraints) => SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(
@@ -169,9 +176,9 @@ class _EventListScreenState extends State<EventListScreen> {
             child: Center(
               child: Text(
                 'No events for this day.',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium?.copyWith(fontSize: _baseHeaderDateFontSize * scale), // Scale "No events" text
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: _baseHeaderDateFontSize *
+                        scale), // Scale "No events" text
               ),
             ),
           ),
@@ -180,14 +187,16 @@ class _EventListScreenState extends State<EventListScreen> {
     }
 
     return ListView.builder(
-      physics: const AlwaysScrollableScrollPhysics(), // Important for RefreshIndicator
+      physics:
+          const AlwaysScrollableScrollPhysics(), // Important for RefreshIndicator
       itemCount: _currentEvents.length,
       itemBuilder: (context, index) {
         final event = _currentEvents[index];
         return GestureDetector(
           onTap: () {
             // Capture context and event details before any async operations or pop
-            final BuildContext currentContext = context; // This is the dialog's context
+            final BuildContext currentContext =
+                context; // This is the dialog's context
             final String elementId = event.id; // Changed to event.id
             // final String eventTitle = event.title; // Removed unused variable
             // final String? eventIconUrl = event.iconUrl; // Removed unused variable
@@ -203,22 +212,26 @@ class _EventListScreenState extends State<EventListScreen> {
 
               // Initiate navigation
               // GoRouter.of(currentContext).push(tabPath, extra: extraData); // Removed
-              
+
               // Then, close the dialog.
               Navigator.of(currentContext).pop();
             } else {
               // Handle cases where elementId is null or empty, if necessary
-              debugPrint("[EventListScreen] Event tapped but elementId is null or empty. Cannot navigate.");
+              debugPrint(
+                  "[EventListScreen] Event tapped but elementId is null or empty. Cannot navigate.");
             }
           },
           child: Container(
             height: _baseEventItemHeight * scale, // Scale height
             margin: EdgeInsets.symmetric(
-                vertical: _baseEventItemVerticalMargin * scale, 
-                horizontal: _baseEventItemHorizontalMargin * scale), // Scale margin
+                vertical: _baseEventItemVerticalMargin * scale,
+                horizontal:
+                    _baseEventItemHorizontalMargin * scale), // Scale margin
             padding: EdgeInsets.symmetric(
-                horizontal: _baseEventItemPadding * scale, 
-                vertical: _baseEventItemPadding / 2 * scale), // Scale padding (adjust vertical if needed)
+                horizontal: _baseEventItemPadding * scale,
+                vertical: _baseEventItemPadding /
+                    2 *
+                    scale), // Scale padding (adjust vertical if needed)
             decoration: BoxDecoration(
               color: event.background, // Use event background color
               borderRadius: BorderRadius.circular(8.0),
@@ -240,20 +253,25 @@ class _EventListScreenState extends State<EventListScreen> {
                       event.iconUrl!,
                       width: _baseEventIconSize * scale, // Scale icon
                       height: _baseEventIconSize * scale,
-                      errorBuilder: (context, error, stackTrace) =>
-                      Icon(Icons.error_outline, size: _baseEventIconSize * scale, color: Colors.white70), // Scale fallback icon
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.error_outline,
+                          size: _baseEventIconSize * scale,
+                          color: Colors.white70), // Scale fallback icon
                     ),
                   )
                 else
                   Padding(
                     padding: const EdgeInsets.only(right: 8.0),
-                    child: Icon(Icons.event, size: _baseEventIconSize * scale, color: event.textColor), // Scale icon
+                    child: Icon(Icons.event,
+                        size: _baseEventIconSize * scale,
+                        color: event.textColor), // Scale icon
                   ),
                 Expanded(
                   child: Text(
                     event.title,
                     style: TextStyle(
-                      fontSize: _baseEventTitleFontSize * scale, // Scale font size
+                      fontSize:
+                          _baseEventTitleFontSize * scale, // Scale font size
                       fontWeight: FontWeight.bold,
                       color: event.textColor, // Use event text color
                     ),
@@ -283,13 +301,16 @@ class _EventListScreenState extends State<EventListScreen> {
               _baseHeaderHorizontalPadding * scale,
               _baseHeaderVerticalPadding * scale,
               _baseHeaderHorizontalPadding * scale,
-              _baseHeaderVerticalPadding / 1.5 * scale), // Slightly less bottom padding
+              _baseHeaderVerticalPadding /
+                  1.5 *
+                  scale), // Slightly less bottom padding
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               IconButton(
                 icon: FaIcon(FontAwesomeIcons.caretLeft, // Changed
-                    size: _baseHeaderIconSize * scale, color: const Color(0xFF3b89b9)),
+                    size: _baseHeaderIconSize * scale,
+                    color: const Color(0xFF3b89b9)),
                 onPressed: _navigateToPreviousDay,
                 tooltip: 'Previous Day',
               ),
@@ -305,7 +326,8 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               IconButton(
                 icon: FaIcon(FontAwesomeIcons.caretRight, // Changed
-                    size: _baseHeaderIconSize * scale, color: const Color(0xFF3b89b9)),
+                    size: _baseHeaderIconSize * scale,
+                    color: const Color(0xFF3b89b9)),
                 onPressed: _navigateToNextDay,
                 tooltip: 'Next Day',
               ),
@@ -331,12 +353,14 @@ class _EventListScreenState extends State<EventListScreen> {
               child: PageTransitionSwitcher(
                 duration: const Duration(milliseconds: 300),
                 reverse: !_isNavigatingForward,
-                transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
+                transitionBuilder:
+                    (child, primaryAnimation, secondaryAnimation) {
                   return SharedAxisTransition(
                     animation: primaryAnimation,
                     secondaryAnimation: secondaryAnimation,
                     transitionType: SharedAxisTransitionType.horizontal,
-                    fillColor: Theme.of(context).dialogTheme.backgroundColor ?? Theme.of(context).dialogTheme.backgroundColor,
+                    fillColor: Theme.of(context).dialogTheme.backgroundColor ??
+                        Theme.of(context).dialogTheme.backgroundColor,
                     child: child,
                   );
                 },

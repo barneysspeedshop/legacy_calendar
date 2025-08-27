@@ -8,7 +8,8 @@ Color parseColorHex(String? hexString, Color defaultColor) {
     return defaultColor;
   }
 
-  String cleanHex = hexString.startsWith('#') ? hexString.substring(1) : hexString;
+  String cleanHex =
+      hexString.startsWith('#') ? hexString.substring(1) : hexString;
 
   // Handle single character "0" or other non-standard small strings by returning default
   if (cleanHex.length < 3) {
@@ -39,7 +40,10 @@ Color parseColorHex(String? hexString, Color defaultColor) {
 Color getContrastingTextColor(Color backgroundColor) {
   // Formula to determine luminance (YIQ color space).
   // Using the new recommended properties for color components (r, g, b) which are 0.0-1.0.
-  double luminance = (0.299 * backgroundColor.r + 0.587 * backgroundColor.g + 0.114 * backgroundColor.b) * 255.0;
+  double luminance = (0.299 * backgroundColor.r +
+          0.587 * backgroundColor.g +
+          0.114 * backgroundColor.b) *
+      255.0;
   // Return black for light backgrounds, white for dark backgrounds.
   return luminance > 128 ? Colors.black : Colors.white;
 }

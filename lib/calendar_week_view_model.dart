@@ -20,10 +20,13 @@ class CalendarWeekViewModel extends ChangeNotifier {
   ///
   /// It listens to changes in the [CalendarTemplateProvider] to refetch events
   /// when the selected template changes.
-  CalendarWeekViewModel(BuildContext context, {AbstractApiInterface? apiInterface, DateTime? initialDate})
-      : _calendarRepository = context.read<CalendarMonthRepository>(), // Read from Provider
+  CalendarWeekViewModel(BuildContext context,
+      {AbstractApiInterface? apiInterface, DateTime? initialDate})
+      : _calendarRepository =
+            context.read<CalendarMonthRepository>(), // Read from Provider
         _templateProvider = context.read<CalendarTemplateProvider?>(),
-        _displayDate = initialDate ?? DateTime.now() { // Initialize _displayDate here
+        _displayDate = initialDate ?? DateTime.now() {
+    // Initialize _displayDate here
     _templateProvider?.addListener(_onDependenciesChanged);
   }
 
@@ -94,10 +97,12 @@ class CalendarWeekViewModel extends ChangeNotifier {
 
       // On the first load, if the current week has no events, jump to the first event's week.
       if (_isInitialLoad) {
-        final firstDayOfWeek = _displayDate.subtract(Duration(days: _displayDate.weekday % 7));
+        final firstDayOfWeek =
+            _displayDate.subtract(Duration(days: _displayDate.weekday % 7));
         final lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 7));
         final bool hasEventsInCurrentWeek = _events.any((event) =>
-            event.startDate.isBefore(lastDayOfWeek) && event.endDate.isAfter(firstDayOfWeek));
+            event.startDate.isBefore(lastDayOfWeek) &&
+            event.endDate.isAfter(firstDayOfWeek));
 
         if (!hasEventsInCurrentWeek && _events.isNotEmpty) {
           _displayDate = _events.first.startDate;

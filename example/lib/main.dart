@@ -18,16 +18,17 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ScaleNotifier()),
-        ChangeNotifierProvider(create: (_) => CalendarTemplateProvider()..loadTemplatesIfNeeded()),
+        ChangeNotifierProvider(
+          create: (_) => CalendarTemplateProvider()..loadTemplatesIfNeeded(),
+        ),
         Provider<CalendarMonthRepository>(
-          create: (_) => CalendarMonthRepository(apiInterface: DummyApiInterface()),
+          create: (_) =>
+              CalendarMonthRepository(apiInterface: DummyApiInterface()),
         ),
       ],
       child: MaterialApp(
         title: 'Legacy Calendar Example',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue),
         darkTheme: ThemeData.dark(),
         themeMode: ThemeMode.system,
         home: const MyHomePage(),

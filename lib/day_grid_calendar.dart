@@ -12,7 +12,8 @@ class DayGridCalendar extends StatelessWidget {
   final double dayNumberDisplaySpace;
   final double eventHeight;
   final double eventVerticalSpacing;
-  final Function(BuildContext, DateTime, List<CalendarMonthEvent>) showEventListModal;
+  final Function(BuildContext, DateTime, List<CalendarMonthEvent>)
+      showEventListModal;
   final Widget Function(BuildContext, EventPlacement) eventBuilder;
 
   const DayGridCalendar({
@@ -32,18 +33,21 @@ class DayGridCalendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ensure the day passed to InternalCalendarEvent and EventRenderer is UTC
-    final internalEvents = events.map((e) => InternalCalendarEvent(
-      startDate: e.startDate.toUtc(), // Convert to UTC
-      endDate: e.endDate.toUtc(),     // Convert to UTC
-      title: e.title,
-      background: e.background,
-      iconUrl: e.iconUrl,
-      textColor: e.textColor,
-      id: e.id,
-    )).toList();
+    final internalEvents = events
+        .map((e) => InternalCalendarEvent(
+              startDate: e.startDate.toUtc(), // Convert to UTC
+              endDate: e.endDate.toUtc(), // Convert to UTC
+              title: e.title,
+              background: e.background,
+              iconUrl: e.iconUrl,
+              textColor: e.textColor,
+              id: e.id,
+            ))
+        .toList();
 
     // Ensure the day for the renderer is UTC
-    final renderer = EventRenderer(internalEvents, day.toUtc(), maxEvents: maxEvents);
+    final renderer =
+        EventRenderer(internalEvents, day.toUtc(), maxEvents: maxEvents);
     renderer.calculate();
 
     return SizedBox(
@@ -59,7 +63,8 @@ class DayGridCalendar extends StatelessWidget {
     );
   }
 
-  Widget _buildBackgroundGrid(BuildContext context, DateTime day, double maxHeight, double scale) {
+  Widget _buildBackgroundGrid(
+      BuildContext context, DateTime day, double maxHeight, double scale) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -67,7 +72,10 @@ class DayGridCalendar extends StatelessWidget {
       width: double.infinity,
       height: maxHeight,
       decoration: BoxDecoration(
-        border: Border.all(color: isDark ? Colors.white.withAlpha((255 * 0.08).round()) : Colors.black.withAlpha((255 * 0.04).round())),
+        border: Border.all(
+            color: isDark
+                ? Colors.white.withAlpha((255 * 0.08).round())
+                : Colors.black.withAlpha((255 * 0.04).round())),
       ),
       padding: const EdgeInsets.all(8),
       child: Text(
@@ -88,7 +96,8 @@ class DayGridCalendar extends StatelessWidget {
           children: placements.map((placement) {
             final event = events.firstWhere((e) => e.id == placement.event.id);
             return Positioned(
-              top: dayNumberDisplaySpace + (placement.rowIdx * (eventHeight + eventVerticalSpacing)),
+              top: dayNumberDisplaySpace +
+                  (placement.rowIdx * (eventHeight + eventVerticalSpacing)),
               left: 0,
               width: constraints.maxWidth,
               height: eventHeight,
@@ -103,7 +112,8 @@ class DayGridCalendar extends StatelessWidget {
     );
   }
 
-  Widget _buildOverflowTextLayer(BuildContext context, DateTime day, EventRenderer renderer, double scale) {
+  Widget _buildOverflowTextLayer(BuildContext context, DateTime day,
+      EventRenderer renderer, double scale) {
     final theme = Theme.of(context);
     if (!renderer.hasOverflow()) {
       return const SizedBox.shrink();
@@ -166,11 +176,13 @@ class EventRenderer {
 
     // Ensure day comparison is done using UTC for consistency
     final dayStart = DateTime.utc(day.year, day.month, day.day, 0, 0, 0);
-    final dayEnd = dayStart.add(const Duration(days: 1)); // End of the current day in UTC
+    final dayEnd =
+        dayStart.add(const Duration(days: 1)); // End of the current day in UTC
 
     final dayEvents = events.where((event) {
       // Check for overlap between the event and the current day (in UTC)
-      return event.startDate.isBefore(dayEnd) && event.endDate.isAfter(dayStart);
+      return event.startDate.isBefore(dayEnd) &&
+          event.endDate.isAfter(dayStart);
     }).toList();
 
     dayEvents.sort((a, b) => a.startDate.compareTo(b.startDate));
@@ -179,12 +191,14 @@ class EventRenderer {
       final int eventsToShow = maxEvents - 1;
       _overflowCount = dayEvents.length - eventsToShow;
       for (int i = 0; i < eventsToShow; i++) {
-        placements.add(EventPlacement(event: dayEvents[i], dayIdx: 0, span: 1, rowIdx: i));
+        placements.add(
+            EventPlacement(event: dayEvents[i], dayIdx: 0, span: 1, rowIdx: i));
       }
     } else {
       for (int i = 0; i < dayEvents.length; i++) {
         if (i < maxEvents) {
-          placements.add(EventPlacement(event: dayEvents[i], dayIdx: 0, span: 1, rowIdx: i));
+          placements.add(EventPlacement(
+              event: dayEvents[i], dayIdx: 0, span: 1, rowIdx: i));
         }
       }
     }

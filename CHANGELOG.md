@@ -1,3 +1,6 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+*   Initial release of the `legacy_calendar` package.
+*   Provides customizable day, week, and month calendar views.
+*   Supports event display and interaction.
+*   Supports responsive scaling.

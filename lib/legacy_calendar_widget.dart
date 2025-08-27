@@ -18,13 +18,16 @@ class LegacyCalendar extends StatefulWidget {
 class _LegacyCalendarState extends State<LegacyCalendar> {
   // Manage the selected view state internally.
   CalendarView _selectedView = CalendarView.month;
-  DateTime _displayDate = DateTime.now(); // Manage the displayed date internally.
-  late final CalendarMonthRepository _calendarRepository; // Declare the repository
+  DateTime _displayDate =
+      DateTime.now(); // Manage the displayed date internally.
+  late final CalendarMonthRepository
+      _calendarRepository; // Declare the repository
 
   @override
   void initState() {
     super.initState();
-    _calendarRepository = CalendarMonthRepository(apiInterface: DummyApiInterface()); // Initialize the repository
+    _calendarRepository = CalendarMonthRepository(
+        apiInterface: DummyApiInterface()); // Initialize the repository
   }
 
   @override
@@ -68,13 +71,16 @@ class _LegacyCalendarState extends State<LegacyCalendar> {
                 setState(() {
                   switch (_selectedView) {
                     case CalendarView.month:
-                      _displayDate = DateTime(_displayDate.year, _displayDate.month - 1, _displayDate.day);
+                      _displayDate = DateTime(_displayDate.year,
+                          _displayDate.month - 1, _displayDate.day);
                       break;
                     case CalendarView.week:
-                      _displayDate = _displayDate.subtract(const Duration(days: 7));
+                      _displayDate =
+                          _displayDate.subtract(const Duration(days: 7));
                       break;
                     case CalendarView.day:
-                      _displayDate = _displayDate.subtract(const Duration(days: 1));
+                      _displayDate =
+                          _displayDate.subtract(const Duration(days: 1));
                       break;
                   }
                 });
@@ -83,7 +89,8 @@ class _LegacyCalendarState extends State<LegacyCalendar> {
                 setState(() {
                   switch (_selectedView) {
                     case CalendarView.month:
-                      _displayDate = DateTime(_displayDate.year, _displayDate.month + 1, _displayDate.day);
+                      _displayDate = DateTime(_displayDate.year,
+                          _displayDate.month + 1, _displayDate.day);
                       break;
                     case CalendarView.week:
                       _displayDate = _displayDate.add(const Duration(days: 7));
@@ -101,9 +108,12 @@ class _LegacyCalendarState extends State<LegacyCalendar> {
         body: IndexedStack(
           index: _selectedView.index,
           children: [
-            CalendarMonthViewTab(showTemplateSelector: false, displayDate: _displayDate),
-            CalendarWeekViewTab(showTemplateSelector: false, displayDate: _displayDate),
-            CalendarDayViewTab(showTemplateSelector: false, displayDate: _displayDate),
+            CalendarMonthViewTab(
+                showTemplateSelector: false, displayDate: _displayDate),
+            CalendarWeekViewTab(
+                showTemplateSelector: false, displayDate: _displayDate),
+            CalendarDayViewTab(
+                showTemplateSelector: false, displayDate: _displayDate),
           ],
         ),
       ),

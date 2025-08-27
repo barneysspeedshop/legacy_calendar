@@ -20,7 +20,14 @@ class TemplateSelector extends StatelessWidget {
 
     if (templateProvider.isLoading) {
       // Show a compact loader while loading.
-      return SizedBox(width: 157 * scale, height: 25 * scale, child: const Center(child: SizedBox(width: 24, height: 25, child: CircularProgressIndicator(strokeWidth: 2.0))));
+      return SizedBox(
+          width: 157 * scale,
+          height: 25 * scale,
+          child: const Center(
+              child: SizedBox(
+                  width: 24,
+                  height: 25,
+                  child: CircularProgressIndicator(strokeWidth: 2.0))));
     }
 
     if (templateProvider.availableTemplates.isEmpty) {
@@ -39,18 +46,21 @@ class TemplateSelector extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         isExpanded: true,
         initialValue: templateProvider.selectedTemplateId,
-        style: dropdownTextStyle, // Apply style to the selected item and dropdown menu items.
+        style:
+            dropdownTextStyle, // Apply style to the selected item and dropdown menu items.
         decoration: InputDecoration(
           // isDense reduces the field's intrinsic height, making it more compact.
           isDense: true,
           // Adjust vertical padding to center the text and icon within the 24px container.
-          contentPadding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 5 * scale),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 5 * scale),
           border: const OutlineInputBorder(),
         ),
         items: templateProvider.availableTemplates.map((template) {
           return DropdownMenuItem<String>(
             value: template['id'] as String?,
-            child: Text(template['name'] as String? ?? 'Unknown', overflow: TextOverflow.ellipsis),
+            child: Text(template['name'] as String? ?? 'Unknown',
+                overflow: TextOverflow.ellipsis),
           );
         }).toList(),
         // Disable the dropdown while the default template is being updated on the backend.
@@ -59,7 +69,9 @@ class TemplateSelector extends StatelessWidget {
             : (newTemplateId) {
                 if (newTemplateId != null) {
                   // Use context.read to call a method inside an event handler like onChanged
-                  context.read<CalendarTemplateProvider>().setSelectedTemplateId(newTemplateId);
+                  context
+                      .read<CalendarTemplateProvider>()
+                      .setSelectedTemplateId(newTemplateId);
                 }
               },
       ),

@@ -20,10 +20,13 @@ class CalendarMonthViewModel extends ChangeNotifier {
   ///
   /// It listens to changes in the [CalendarTemplateProvider] to refetch events
   /// when the selected template changes.
-  CalendarMonthViewModel(BuildContext context, {AbstractApiInterface? apiInterface, DateTime? initialDate})
-      : _calendarRepository = context.read<CalendarMonthRepository>(), // Read from Provider
+  CalendarMonthViewModel(BuildContext context,
+      {AbstractApiInterface? apiInterface, DateTime? initialDate})
+      : _calendarRepository =
+            context.read<CalendarMonthRepository>(), // Read from Provider
         _templateProvider = context.read<CalendarTemplateProvider?>(),
-        _displayDate = initialDate ?? DateTime.now() { // Initialize _displayDate here
+        _displayDate = initialDate ?? DateTime.now() {
+    // Initialize _displayDate here
     _templateProvider?.addListener(_onDependenciesChanged);
   }
 
@@ -87,17 +90,22 @@ class CalendarMonthViewModel extends ChangeNotifier {
         parentElementsOnly: false,
       );
 
-      _events = calendarEvents; // The repository now directly returns CalendarMonthEvent
+      _events =
+          calendarEvents; // The repository now directly returns CalendarMonthEvent
 
       // Sort events to make sure `_events.first` is the earliest one.
       _events.sort((a, b) => a.startDate.compareTo(b.startDate));
 
       // On the first load, if the current month has no events, jump to the first event's month.
       if (_isInitialLoad) {
-        final firstDayOfDisplayMonth = DateTime(_displayDate.year, _displayDate.month, 1);
-        final lastDayOfDisplayMonth = DateTime(_displayDate.year, _displayDate.month + 1, 0).add(const Duration(days: 1));
+        final firstDayOfDisplayMonth =
+            DateTime(_displayDate.year, _displayDate.month, 1);
+        final lastDayOfDisplayMonth =
+            DateTime(_displayDate.year, _displayDate.month + 1, 0)
+                .add(const Duration(days: 1));
         final bool hasEventsInCurrentMonth = _events.any((event) =>
-            event.startDate.isBefore(lastDayOfDisplayMonth) && event.endDate.isAfter(firstDayOfDisplayMonth));
+            event.startDate.isBefore(lastDayOfDisplayMonth) &&
+            event.endDate.isAfter(firstDayOfDisplayMonth));
 
         if (!hasEventsInCurrentMonth && _events.isNotEmpty) {
           _displayDate = _events.first.startDate;

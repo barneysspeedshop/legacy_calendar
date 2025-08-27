@@ -32,7 +32,8 @@ const double _baseDayNumberDisplaySpace = 28.0;
 const double _baseEventIconSize = 16.0;
 const double _baseEventFontSize = 12.0;
 
-class _CalendarDayViewTabState extends State<CalendarDayViewTab> with AutomaticKeepAliveClientMixin<CalendarDayViewTab> {
+class _CalendarDayViewTabState extends State<CalendarDayViewTab>
+    with AutomaticKeepAliveClientMixin<CalendarDayViewTab> {
   @override
   bool get wantKeepAlive => true;
 
@@ -41,7 +42,8 @@ class _CalendarDayViewTabState extends State<CalendarDayViewTab> with AutomaticK
   @override
   void initState() {
     super.initState();
-    _viewModel = CalendarDayViewModel(context, initialDate: widget.displayDate); // Changed
+    _viewModel = CalendarDayViewModel(context,
+        initialDate: widget.displayDate); // Changed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _viewModel.fetchEvents(widget.displayDate); // Changed
     });
@@ -72,13 +74,16 @@ class _CalendarDayViewTabState extends State<CalendarDayViewTab> with AutomaticK
     setState(() {});
   }
 
-  void _navigateToEventListScreen(BuildContext context, DateTime date, List<CalendarMonthEvent> dayEvents) { // Changed type
+  void _navigateToEventListScreen(
+      BuildContext context, DateTime date, List<CalendarMonthEvent> dayEvents) {
+    // Changed type
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(dialogContext).size.width * 0.9,
@@ -87,7 +92,8 @@ class _CalendarDayViewTabState extends State<CalendarDayViewTab> with AutomaticK
             child: EventListScreen(
               date: date,
               events: dayEvents,
-              templateId: context.read<CalendarTemplateProvider>().selectedTemplateId,
+              templateId:
+                  context.read<CalendarTemplateProvider>().selectedTemplateId,
             ),
           ),
         );
@@ -104,90 +110,133 @@ class _CalendarDayViewTabState extends State<CalendarDayViewTab> with AutomaticK
     return Column(
       children: [
         Expanded(
-          child: viewModel.isLoading ? const Center(child: CircularProgressIndicator()) : Column(
-            children: [
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (layoutBuilderContext, constraints) {
-                    final double availableHeight = constraints.maxHeight;
-                    if (availableHeight <= 0 || availableHeight.isInfinite) {
-                      return const SizedBox.expand(child: Center(child: CircularProgressIndicator()));
-                    }
-                    final double scaledEventHeight = _baseEventHeight * scale;
-                    final double scaledEventVerticalSpacing = _baseEventVerticalSpacing * scale;
-                    final double scaledDayNumberDisplaySpace = _baseDayNumberDisplaySpace * scale;
-                    final double cellHeight = availableHeight;
-                    final double eventDisplayAreaHeightPerCell = cellHeight - scaledDayNumberDisplaySpace;
-                    int calculatedMaxEvents = (eventDisplayAreaHeightPerCell / (scaledEventHeight + scaledEventVerticalSpacing)).floor();
-                    if (calculatedMaxEvents < 1) calculatedMaxEvents = 1;
-                    const int desiredMaxSlotsForRenderer = 20;
-                    final int finalMaxEvents = math.min(calculatedMaxEvents, desiredMaxSlotsForRenderer);
+          child: viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (layoutBuilderContext, constraints) {
+                          final double availableHeight = constraints.maxHeight;
+                          if (availableHeight <= 0 ||
+                              availableHeight.isInfinite) {
+                            return const SizedBox.expand(
+                                child:
+                                    Center(child: CircularProgressIndicator()));
+                          }
+                          final double scaledEventHeight =
+                              _baseEventHeight * scale;
+                          final double scaledEventVerticalSpacing =
+                              _baseEventVerticalSpacing * scale;
+                          final double scaledDayNumberDisplaySpace =
+                              _baseDayNumberDisplaySpace * scale;
+                          final double cellHeight = availableHeight;
+                          final double eventDisplayAreaHeightPerCell =
+                              cellHeight - scaledDayNumberDisplaySpace;
+                          int calculatedMaxEvents =
+                              (eventDisplayAreaHeightPerCell /
+                                      (scaledEventHeight +
+                                          scaledEventVerticalSpacing))
+                                  .floor();
+                          if (calculatedMaxEvents < 1) calculatedMaxEvents = 1;
+                          const int desiredMaxSlotsForRenderer = 20;
+                          final int finalMaxEvents = math.min(
+                              calculatedMaxEvents, desiredMaxSlotsForRenderer);
 
-                    return RefreshIndicator(
-                      onRefresh: () => viewModel.fetchEvents(viewModel.displayDate),
-                      child: ListView(
-                        children: [
-                          SizedBox(
-                            width: constraints.maxWidth,
-                            height: availableHeight,
-                            child: DayGridCalendar( // Changed to DayGridCalendar
-                              calendarHeight: availableHeight,
-                                scale: scale,
-                              day: viewModel.displayDate,
-                              events: viewModel.events,
-                              maxEvents: finalMaxEvents,
-                              dayNumberDisplaySpace: scaledDayNumberDisplaySpace,
-                              eventHeight: scaledEventHeight,
-                              eventVerticalSpacing: scaledEventVerticalSpacing,
-                              showEventListModal: _navigateToEventListScreen,
-                              eventBuilder: (context, placement) {
-                                final theme = Theme.of(context);
-                                final scale = context.watch<ScaleNotifier>().scale;
-                                return InkWell(
-                                  onTap: () {
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                                    padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color: placement.event.background,
-                                      borderRadius: BorderRadius.circular(1),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        if (placement.event.iconUrl != null && placement.event.iconUrl!.isNotEmpty)
-                                          Image.network(placement.event.iconUrl!, width: 16, height: 16,
-                                            errorBuilder: (imgErrorContext, error, stackTrace) => Icon(Icons.error_outline, size: _baseEventIconSize * scale, color: Colors.white),
-                                          )
-                                        else
-                                          Icon(Icons.event, size: _baseEventIconSize * scale, color: Colors.white),
-                                        const SizedBox(width: 2),
-                                        Expanded(
-                                          child: Text(
-                                            placement.event.title,
-                                            style: theme.textTheme.bodySmall!.copyWith(
-                                              fontSize: _baseEventFontSize * scale,
-                                              color: placement.event.textColor,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
+                          return RefreshIndicator(
+                            onRefresh: () =>
+                                viewModel.fetchEvents(viewModel.displayDate),
+                            child: ListView(
+                              children: [
+                                SizedBox(
+                                  width: constraints.maxWidth,
+                                  height: availableHeight,
+                                  child: DayGridCalendar(
+                                    // Changed to DayGridCalendar
+                                    calendarHeight: availableHeight,
+                                    scale: scale,
+                                    day: viewModel.displayDate,
+                                    events: viewModel.events,
+                                    maxEvents: finalMaxEvents,
+                                    dayNumberDisplaySpace:
+                                        scaledDayNumberDisplaySpace,
+                                    eventHeight: scaledEventHeight,
+                                    eventVerticalSpacing:
+                                        scaledEventVerticalSpacing,
+                                    showEventListModal:
+                                        _navigateToEventListScreen,
+                                    eventBuilder: (context, placement) {
+                                      final theme = Theme.of(context);
+                                      final scale =
+                                          context.watch<ScaleNotifier>().scale;
+                                      return InkWell(
+                                        onTap: () {},
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 2),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 2, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: placement.event.background,
+                                            borderRadius:
+                                                BorderRadius.circular(1),
                                           ),
-                                        )
-                                      ],
-                                    ),
+                                          child: Row(
+                                            children: [
+                                              if (placement.event.iconUrl !=
+                                                      null &&
+                                                  placement.event.iconUrl!
+                                                      .isNotEmpty)
+                                                Image.network(
+                                                  placement.event.iconUrl!,
+                                                  width: 16,
+                                                  height: 16,
+                                                  errorBuilder: (imgErrorContext,
+                                                          error, stackTrace) =>
+                                                      Icon(Icons.error_outline,
+                                                          size:
+                                                              _baseEventIconSize *
+                                                                  scale,
+                                                          color: Colors.white),
+                                                )
+                                              else
+                                                Icon(Icons.event,
+                                                    size: _baseEventIconSize *
+                                                        scale,
+                                                    color: Colors.white),
+                                              const SizedBox(width: 2),
+                                              Expanded(
+                                                child: Text(
+                                                  placement.event.title,
+                                                  style: theme
+                                                      .textTheme.bodySmall!
+                                                      .copyWith(
+                                                    fontSize:
+                                                        _baseEventFontSize *
+                                                            scale,
+                                                    color: placement
+                                                        .event.textColor,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ],
     );
