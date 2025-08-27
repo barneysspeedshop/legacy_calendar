@@ -1,3 +1,7 @@
+## 0.0.2
+
+* **FIX**: Fix up old dependencies
+
 ## 0.0.1
 
 *   Initial release of the `legacy_calendar` package.
