@@ -1,34 +1,43 @@
-name: Deploy to GitHub Pages
+name: Deploy Example to GitHub Pages
 
+# Run this workflow every time a change is pushed to the `main` branch
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+
+# Prevent multiple workflows from running at the same time for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          
-      - name: Install dependencies
-        run: flutter pub get
-        working-directory: example
+          cache: true # Enable caching for the Flutter SDK itself
 
-      - name: Build web app
-        run: flutter build web --base-href /legacy_calendar/
-        working-directory: example
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PUB_CACHE }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Build Flutter web app
+        run: |
+          cd example
+          flutter pub get
+          flutter build web --release --base-href /legacy_calendar/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./example/build/web
-          cname: your-custom-domain.com # Optional: if you have a custom domain
