@@ -38,7 +38,6 @@ class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
   bool get wantKeepAlive => true;
 
   late final CalendarMonthViewModel _viewModel;
-// New
 
   @override
   void initState() {
