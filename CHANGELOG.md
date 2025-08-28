@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Properly pubignore example and build dirs
+
 ## 0.0.3
 
 * Add screenshot to pubspec.yaml

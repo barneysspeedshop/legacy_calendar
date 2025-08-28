@@ -1,0 +1,4 @@
+# Exclude files that are not needed in the final published package.
+
+example/
+build/
