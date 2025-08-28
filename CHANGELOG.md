@@ -1,3 +1,7 @@
+## 0.0.5
+
+* **FIX**: 0.0.4 didn't properly pubignore
+
 ## 0.0.4
 
 * Properly pubignore example and build dirs

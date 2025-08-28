@@ -1,6 +1,6 @@
 name: legacy_calendar
 description: "A customizable and themeable calendar widget for Flutter that provides a classic calendar view."
-version: 0.0.4
+version: 0.0.5
 license: MIT
 homepage: https://github.com/barneysspeedshop/legacy_calendar
 repository: https://github.com/barneysspeedshop/legacy_calendar
