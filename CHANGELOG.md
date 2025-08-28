@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Add screenshot to pubspec.yaml
+
 ## 0.0.2
 
 * **FIX**: Fix up old dependencies
