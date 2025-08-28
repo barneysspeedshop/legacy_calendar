@@ -8,7 +8,7 @@ on:
 # Prevent multiple workflows from running at the same time for the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build_and_deploy:
@@ -20,7 +20,6 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          # Change the channel from 'stable' to 'beta' to get the correct SDK version.
           channel: 'beta'
           cache: true # Enable caching for the Flutter SDK itself
 
