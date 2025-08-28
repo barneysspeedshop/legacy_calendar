@@ -1,3 +1,7 @@
+## 0.0.7
+
+* **FIX**: Screenshot properly mapped
+
 ## 0.0.6
 
 * **FIX**: Actually, don't pubignore the example...
