@@ -1,3 +1,7 @@
+## 0.0.6
+
+* **FIX**: Actually, don't pubignore the example...
+
 ## 0.0.5
 
 * **FIX**: 0.0.4 didn't properly pubignore
