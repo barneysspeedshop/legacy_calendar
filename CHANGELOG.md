@@ -1,3 +1,7 @@
+## 0.0.8
+
+* **FIX**: Update README.md
+
 ## 0.0.7
 
 * **FIX**: Screenshot properly mapped
