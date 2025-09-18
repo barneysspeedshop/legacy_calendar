@@ -1,3 +1,14 @@
+## 1.0.1
+
+* **FIX:** Add missing changelog entries
+
+## 1.0.0
+
+* **BREAKING**: **`LegacyCalendarWidget` is replaced by `LegacyCalendar`:** The main widget has been rewritten and requires a different set of parameters.
+* **FEATURE **State Management:** The calendar now relies on the `provider` package for state management. You need to set up the necessary providers in your app.
+* **FEATURE **Event Handling:** Event handling is now done through callbacks on the `LegacyCalendar` widget.
+* **FEATURE** **API Integration:** The calendar now uses an `AbstractApiInterface` to fetch and manage events.
+
 ## 0.0.8
 
 * **FIX**: Update README.md
