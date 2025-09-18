@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:legacy_calendar/legacy_calendar.dart'; // Import the public API
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animations/animations.dart'; // Import for PageTransitionSwitcher and SharedAxisTransition
-// Import TabManager
 import 'package:legacy_calendar/scale_notifier.dart';
 import 'package:legacy_calendar/calendar_month_repository.dart';
-// import 'package:legacy_calendar/color_utils.dart'; // Already imported via legacy_calendar.dart
 
+/// A screen that displays a list of events for a given day.
 class EventListScreen extends StatefulWidget {
-  final DateTime date;
-  final List<CalendarMonthEvent> events; // Changed type
-  final String? templateId; // Add templateId
-
+  /// Creates a new instance of [EventListScreen].
   const EventListScreen({
     required this.date,
     required this.events,
@@ -22,11 +17,19 @@ class EventListScreen extends StatefulWidget {
     super.key,
   });
 
+  /// The date to display the events for.
+  final DateTime date;
+
+  /// The events to display.
+  final List<CalendarMonthEvent> events; // Changed type
+
+  /// The ID of the template to use.
+  final String? templateId; // Add templateId
+
   @override
   State<EventListScreen> createState() => _EventListScreenState();
 }
 
-// Base sizes for scaling
 const double _baseHeaderVerticalPadding = 12.0;
 const double _baseHeaderHorizontalPadding = 4.0;
 const double _baseHeaderIconSize = 24.0; // For caret icons

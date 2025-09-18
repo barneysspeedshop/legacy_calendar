@@ -3,17 +3,23 @@ import 'package:legacy_calendar/calendar_month_event.dart';
 
 import 'package:intl/intl.dart';
 
+/// A widget that wraps another widget and displays a tooltip for an event.
 class EventTooltipWrapper extends StatefulWidget {
-  final Widget child;
-  final CalendarMonthEvent event;
-
+  /// Creates a new instance of [EventTooltipWrapper].
   const EventTooltipWrapper(
       {super.key, required this.child, required this.event});
+
+  /// The widget to wrap.
+  final Widget child;
+
+  /// The event to display the tooltip for.
+  final CalendarMonthEvent event;
 
   @override
   EventTooltipWrapperState createState() => EventTooltipWrapperState();
 }
 
+/// The state for an [EventTooltipWrapper].
 class EventTooltipWrapperState extends State<EventTooltipWrapper> {
   OverlayEntry? _tooltipOverlay;
 

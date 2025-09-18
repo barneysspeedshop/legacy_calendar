@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:legacy_calendar/calendar_month_event.dart'; // Import CalendarMonthEvent
+import 'package:legacy_calendar/calendar_month_event.dart';
 import 'package:legacy_calendar/calendar_template_provider.dart';
 import 'package:legacy_calendar/calendar_month_repository.dart';
 import 'package:legacy_calendar/abstract_api_interface.dart';
@@ -11,10 +11,6 @@ import 'package:provider/provider.dart';
 ///
 /// It fetches events, handles date navigation, and provides loading/error states.
 class CalendarMonthViewModel extends ChangeNotifier {
-  final CalendarMonthRepository _calendarRepository;
-  final CalendarTemplateProvider? _templateProvider;
-  bool _isInitialLoad = true;
-
   /// Creates a [CalendarMonthViewModel] with the given repository and template provider.
   ///
   /// It listens to changes in the [CalendarTemplateProvider] to refetch events
@@ -24,26 +20,91 @@ class CalendarMonthViewModel extends ChangeNotifier {
       : _calendarRepository =
             context.read<CalendarMonthRepository>(), // Read from Provider
         _templateProvider = context.read<CalendarTemplateProvider?>(),
-        _displayDate = initialDate ?? DateTime.now() {
+        _displayDate = initialDate ??
+            (() {
+              final now = DateTime.now();
+              return DateTime.utc(now.year, now.month, now.day);
+            })() {
     // Initialize _displayDate here
     _templateProvider?.addListener(_onDependenciesChanged);
   }
 
+  final CalendarMonthRepository _calendarRepository;
+  final CalendarTemplateProvider? _templateProvider;
+  bool _isInitialLoad = true;
+
+  /// The start date of the current selection.
+  DateTime? selectionStart;
+
+  /// The end date of the current selection.
+  DateTime? selectionEnd;
+
   List<CalendarMonthEvent> _events = [];
+
+  /// The list of events for the current month.
   List<CalendarMonthEvent> get events => _events;
 
+  CalendarMonthEvent? _placeholderEvent;
+
+  /// A temporary event that is being created.
+  CalendarMonthEvent? get placeholderEvent => _placeholderEvent;
+
+  /// Combines the persisted events with the temporary placeholder event for rendering.
+  List<CalendarMonthEvent> get eventsWithPlaceholder {
+    final allEvents = [..._events];
+    if (_placeholderEvent != null) {
+      allEvents.add(_placeholderEvent!);
+    }
+    allEvents.sort((a, b) => a.startDate.compareTo(b.startDate));
+    return allEvents;
+  }
+
   bool _isLoading = false;
+
+  /// Whether the view model is currently loading data.
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
+
+  /// The error message, if any.
   String? get errorMessage => _errorMessage;
 
   /// Clears the current error message. This is typically called by the View
   /// after it has displayed the error to the user (e.g., in a SnackBar).
   void clearError() => _errorMessage = null;
 
-  DateTime _displayDate = DateTime.now();
+  DateTime _displayDate = (() {
+    final now = DateTime.now();
+    return DateTime.utc(now.year, now.month, now.day);
+  })();
+
+  /// The currently displayed date.
   DateTime get displayDate => _displayDate;
+
+  /// Sets the start date of the selection.
+  void setSelectionStart(DateTime? date) {
+    selectionStart = date;
+    notifyListeners();
+  }
+
+  /// Sets the end date of the selection.
+  void setSelectionEnd(DateTime? date) {
+    selectionEnd = date;
+    notifyListeners();
+  }
+
+  /// Clears the selection.
+  void clearSelection() {
+    selectionStart = null;
+    selectionEnd = null;
+    notifyListeners();
+  }
+
+  /// Sets the placeholder event.
+  void setPlaceholderEvent(CalendarMonthEvent? event) {
+    _placeholderEvent = event;
+    notifyListeners();
+  }
 
   /// Navigates the calendar to the next month.
   void navigateToNextMonth() {
@@ -59,7 +120,8 @@ class CalendarMonthViewModel extends ChangeNotifier {
 
   /// Navigates the calendar to the current month and day.
   void navigateToToday() {
-    _displayDate = DateTime.now();
+    final now = DateTime.now();
+    _displayDate = DateTime.utc(now.year, now.month, now.day);
     fetchEvents(_displayDate);
   }
 
@@ -80,7 +142,6 @@ class CalendarMonthViewModel extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
 
     try {
       final calendarEvents = await _calendarRepository.fetchMonthEvents(
@@ -89,13 +150,10 @@ class CalendarMonthViewModel extends ChangeNotifier {
         parentElementsOnly: false,
       );
 
-      _events =
-          calendarEvents; // The repository now directly returns CalendarMonthEvent
+      _events = calendarEvents;
 
-      // Sort events to make sure `_events.first` is the earliest one.
       _events.sort((a, b) => a.startDate.compareTo(b.startDate));
 
-      // On the first load, if the current month has no events, jump to the first event's month.
       if (_isInitialLoad) {
         final firstDayOfDisplayMonth =
             DateTime(_displayDate.year, _displayDate.month, 1);

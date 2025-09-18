@@ -1,34 +1,25 @@
-// lib/screens/home/widgets/calendar_toolbar.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart'
-    as flutter_material; // Alias for Material package
+import 'package:flutter/material.dart' as flutter_material;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-// Note: legacy_calendar.dart is implicitly imported for general library use,
-// but specific components like ScaleNotifier need direct imports if not exported from root.
 import 'package:legacy_calendar/scale_notifier.dart';
 
-// Base sizes for scaling
 const double _baseToolbarHeight = 50.0;
 const double _baseIconSizeSmall = 16.0;
 
 const double _baseTodayFontSize = 12.0;
-const double _baseFontSizeMonthYear = 14.0; // Added
-const double _basePaddingMedium =
-    12.0; // Add 4px space to the right of the template selector
-const double _basePaddingLarge = 0.0; // Added
-const double _baseShrinkableSizedBoxWidth =
-    330.0; // Added for shrinkable SizedBox
+const double _baseFontSizeMonthYear = 14.0;
+const double _basePaddingMedium = 12.0;
+const double _basePaddingLarge = 0.0;
+const double _baseShrinkableSizedBoxWidth = 330.0;
 
-// Helper class for toolbar actions, moved outside CalendarToolbar
 class _ToolbarAction {
   final IconData icon;
   final String tooltip;
   final String menuText;
   final VoidCallback? onPressed;
-  final Widget? customWidget; // For elements like templateSelector
-  final Color? color;
+  final Widget? customWidget;
 
   _ToolbarAction({
     required this.icon,
@@ -36,27 +27,24 @@ class _ToolbarAction {
     required this.menuText,
     this.onPressed,
     this.customWidget,
-    this.color,
   });
 }
 
-enum CalendarView { month, week, day }
+/// An enum for the different views of the calendar.
+enum CalendarView {
+  /// The month view.
+  month,
+
+  /// The week view.
+  week,
+
+  /// The day view.
+  day
+}
 
 /// A customizable toolbar for the calendar, providing navigation, refresh, and template selection.
 class CalendarToolbar extends StatelessWidget {
-  final VoidCallback onRefresh;
-  final VoidCallback onToday;
-  final VoidCallback onConfigureTemplate;
-  final DateTime displayDate;
-  final String? dateRangeCaption;
-  final Widget? templateSelector;
-  final bool showTemplateSelector;
-  final CalendarView currentView;
-  final ValueChanged<CalendarView> onViewChanged;
-
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-
+  /// Creates a new instance of [CalendarToolbar].
   const CalendarToolbar({
     super.key,
     required this.onRefresh,
@@ -71,6 +59,39 @@ class CalendarToolbar extends StatelessWidget {
     required this.onPrevious,
     required this.onNext,
   });
+
+  /// Called when the refresh button is tapped.
+  final VoidCallback onRefresh;
+
+  /// Called when the today button is tapped.
+  final VoidCallback onToday;
+
+  /// Called when the configure template button is tapped.
+  final VoidCallback onConfigureTemplate;
+
+  /// The date to display.
+  final DateTime displayDate;
+
+  /// The caption for the date range.
+  final String? dateRangeCaption;
+
+  /// The template selector widget.
+  final Widget? templateSelector;
+
+  /// Whether to show the template selector.
+  final bool showTemplateSelector;
+
+  /// The current view of the calendar.
+  final CalendarView currentView;
+
+  /// Called when the view is changed.
+  final ValueChanged<CalendarView> onViewChanged;
+
+  /// Called when the previous button is tapped.
+  final VoidCallback onPrevious;
+
+  /// Called when the next button is tapped.
+  final VoidCallback onNext;
 
   /// Formats the month and year of a given date (e.g., "August 2025").
   String _formatMonthYear(DateTime date) {
@@ -91,8 +112,7 @@ class CalendarToolbar extends StatelessWidget {
   Widget _buildIconButton(
       _ToolbarAction action, double size, Color defaultColor) {
     return flutter_material.IconButton(
-      icon:
-          FaIcon(action.icon, size: size, color: action.color ?? defaultColor),
+      icon: FaIcon(action.icon, size: size, color: defaultColor),
       tooltip: action.tooltip,
       onPressed: action.onPressed,
     );
@@ -223,14 +243,6 @@ class CalendarToolbar extends StatelessWidget {
                 customWidget: templateSelector,
               );
 
-    final _ToolbarAction configureTemplateAction = _ToolbarAction(
-      icon: FontAwesomeIcons.gear,
-      tooltip: 'Configure Calendar Template',
-      menuText: 'Configure Calendar Template',
-      onPressed: onConfigureTemplate,
-      color: const Color(0xFF50a7d1),
-    );
-
     final double scaledIconSize = _baseIconSizeSmall * scale;
     final double scaledFontSizeMonthYear = _baseFontSizeMonthYear * scale;
     final double scaledPaddingMedium = _basePaddingMedium * scale;
@@ -249,7 +261,6 @@ class CalendarToolbar extends StatelessWidget {
                 fontWeight: flutter_material.FontWeight.bold,
                 fontSize: scaledFontSizeMonthYear)) +
         (scaledPaddingLarge * 2);
-    const double configureTemplateWidth = iconButtonWidth;
     final double templateSelectorWidth = templateSelector == null
         ? 0.0
         : 157.0 * scale; // Match the width defined in TemplateSelector
@@ -312,7 +323,6 @@ class CalendarToolbar extends StatelessWidget {
           action: templateSelectorAction,
           width: templateSelectorWidth + scaledPaddingMedium
         ),
-      (action: configureTemplateAction, width: configureTemplateWidth),
     ];
 
     // Define all potential actions in their logical order for fitting calculations

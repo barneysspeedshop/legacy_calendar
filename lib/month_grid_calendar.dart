@@ -1,8 +1,8 @@
-// Path: lib/widgets/month_grid_calendar.dart
-
 import 'package:flutter/material.dart';
 import 'package:legacy_calendar/calendar_month_event.dart'; // Added import
 import 'package:legacy_calendar/event_tooltip_wrapper.dart';
+import 'package:legacy_calendar/calendar_month_view_model.dart';
+import 'package:provider/provider.dart';
 
 /// Utility to compare dates by year, month, day.
 bool isSameDay(DateTime a, DateTime b) =>
@@ -11,15 +11,28 @@ bool isSameDay(DateTime a, DateTime b) =>
 /// Internal event model used for rendering logic within the calendar grid.
 /// It's a private class to avoid exposing internal details to the library user.
 class InternalCalendarEvent {
-  // Changed to public
+  /// The start date of the event.
   final DateTime startDate;
+
+  /// The end date of the event.
   final DateTime endDate;
+
+  /// The title of the event.
   final String title;
+
+  /// The background color of the event.
   final Color background;
+
+  /// The URL of the icon for the event.
   final String? iconUrl;
+
+  /// The text color of the event.
   final Color textColor;
+
+  /// The unique ID of the event.
   final String id; // Changed from elementId to id
 
+  /// Creates a new instance of [InternalCalendarEvent].
   InternalCalendarEvent({
     // Changed to public
     required this.startDate,
@@ -71,18 +84,7 @@ class InternalCalendarEvent {
 
 /// A widget that displays a monthly calendar grid with events.
 class MonthGridCalendar extends StatelessWidget {
-  final DateTime month;
-  final List<CalendarMonthEvent> events;
-  final Widget Function(BuildContext, EventPlacement) eventBuilder;
-  final int maxEvents;
-  final void Function(BuildContext, DateTime, List<CalendarMonthEvent>)
-      showEventListModal;
-  final double dayNumberDisplaySpace;
-  final double eventHeight;
-  final double eventVerticalSpacing;
-  final double calendarHeight;
-  final double scale;
-
+  /// Creates a new instance of [MonthGridCalendar].
   const MonthGridCalendar({
     required this.month,
     required this.events,
@@ -94,8 +96,67 @@ class MonthGridCalendar extends StatelessWidget {
     required this.showEventListModal,
     required this.calendarHeight,
     required this.scale,
+    required this.onDateTapped,
+    required this.onDateLongPress,
+    required this.onDragStart,
+    required this.onDragUpdate,
+    required this.onDragEnd,
+    required this.onEventEdit,
+    required this.onEventDelete,
     super.key,
   });
+
+  /// The month to display.
+  final DateTime month;
+
+  /// The events to display.
+  final List<CalendarMonthEvent> events;
+
+  /// A function that builds an event.
+  final Widget Function(BuildContext, EventPlacement) eventBuilder;
+
+  /// The maximum number of events to display.
+  final int maxEvents;
+
+  /// A function that shows the event list modal.
+  final void Function(BuildContext, DateTime, List<CalendarMonthEvent>)
+      showEventListModal;
+
+  /// The space to display the day number.
+  final double dayNumberDisplaySpace;
+
+  /// The height of an event.
+  final double eventHeight;
+
+  /// The vertical spacing between events.
+  final double eventVerticalSpacing;
+
+  /// The height of the calendar.
+  final double calendarHeight;
+
+  /// The scale of the calendar.
+  final double scale;
+
+  /// Called when a date is tapped.
+  final void Function(DateTime) onDateTapped;
+
+  /// Called when a date is long-pressed.
+  final void Function(DateTime) onDateLongPress;
+
+  /// Called when a drag gesture starts.
+  final void Function(DateTime) onDragStart;
+
+  /// Called when a drag gesture is updated.
+  final void Function(DateTime) onDragUpdate;
+
+  /// Called when a drag gesture ends.
+  final void Function() onDragEnd;
+
+  /// Called when an event is edited.
+  final void Function(CalendarMonthEvent) onEventEdit;
+
+  /// Called when an event is deleted.
+  final void Function(CalendarMonthEvent) onEventDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +212,7 @@ class MonthGridCalendar extends StatelessWidget {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final viewModel = Provider.of<CalendarMonthViewModel>(context);
 
     return Table(
       border: TableBorder.all(
@@ -172,14 +234,51 @@ class MonthGridCalendar extends StatelessWidget {
         return TableRow(
           children: List.generate(7, (day) {
             final currentDay = weekStart.add(Duration(days: day));
-            return Container(
-              height: rowHeight,
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                '${currentDay.day}',
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+            bool isSelected = false;
+            if (viewModel.selectionStart != null) {
+              if (viewModel.selectionEnd == null) {
+                isSelected = isSameDay(currentDay, viewModel.selectionStart!);
+              } else {
+                final orderedSelection =
+                    viewModel.selectionStart!.isBefore(viewModel.selectionEnd!)
+                        ? [viewModel.selectionStart!, viewModel.selectionEnd!]
+                        : [viewModel.selectionEnd!, viewModel.selectionStart!];
+                isSelected = currentDay.isAfter(orderedSelection[0]
+                        .subtract(const Duration(days: 1))) &&
+                    currentDay.isBefore(
+                        orderedSelection[1].add(const Duration(days: 1)));
+              }
+            }
+
+            return GestureDetector(
+              onTap: () => onDateTapped(currentDay),
+              onLongPress: () => onDateLongPress(currentDay),
+              onPanStart: (details) => onDragStart(currentDay),
+              onPanUpdate: (details) {
+                final RenderBox renderBox =
+                    context.findRenderObject() as RenderBox;
+                final localPosition =
+                    renderBox.globalToLocal(details.globalPosition);
+                final dayWidth = renderBox.size.width / 7;
+                final dayIndex = (localPosition.dx / dayWidth).floor();
+                final weekIndex = (localPosition.dy / rowHeight).floor();
+                final selectedDay = firstDay.add(
+                    Duration(days: weekIndex * 7 - firstWeekday + dayIndex));
+                onDragUpdate(selectedDay);
+              },
+              onPanEnd: (details) => onDragEnd(),
+              child: Container(
+                height: rowHeight,
+                color: isSelected
+                    ? theme.primaryColor.withValues(alpha: 0.3)
+                    : null,
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  '${currentDay.day}',
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
             );
@@ -289,13 +388,22 @@ class MonthGridCalendar extends StatelessWidget {
 
 /// Helper class to calculate the placement of events within a calendar week.
 class EventRenderer {
+  /// The events to render.
   final List<InternalCalendarEvent> events; // Changed to public
+
+  /// The start of the week.
   final DateTime weekStart;
+
+  /// The number of days in the week.
   final int days = 7;
+
+  /// The maximum number of events to display.
   final int maxEvents;
 
+  /// Creates a new instance of [EventRenderer].
   EventRenderer(this.events, this.weekStart, {required this.maxEvents});
 
+  /// The rows of event placements.
   List<List<EventPlacement?>> rows = [];
   final Map<int, int> _calculatedOverflowCounts = {};
 
@@ -407,12 +515,19 @@ class EventRenderer {
 
 /// Represents the placement of an event within the calendar grid.
 class EventPlacement {
-  // Made public
+  /// The event.
   final InternalCalendarEvent event; // Changed to public
+
+  /// The index of the day.
   final int dayIdx;
+
+  /// The span of the event.
   final int span;
+
+  /// The index of the row.
   final int rowIdx;
 
+  /// Creates a new instance of [EventPlacement].
   EventPlacement({
     required this.event,
     required this.dayIdx,

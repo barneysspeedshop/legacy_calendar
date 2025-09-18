@@ -4,14 +4,7 @@ import 'package:legacy_calendar/color_utils.dart'; // Ensure color_utils is expo
 /// Represents a single event displayed on the calendar week grid.
 /// This is the public facing event model for the library.
 class CalendarWeekEvent {
-  final String id;
-  final DateTime startDate;
-  final DateTime endDate;
-  final String title;
-  final Color background;
-  final String? iconUrl;
-  final Color textColor;
-
+  /// Creates a new instance of [CalendarWeekEvent].
   CalendarWeekEvent({
     required this.id,
     required this.startDate,
@@ -21,6 +14,27 @@ class CalendarWeekEvent {
     this.iconUrl,
     required this.textColor,
   });
+
+  /// The unique ID of the event.
+  final String id;
+
+  /// The start date of the event.
+  final DateTime startDate;
+
+  /// The end date of the event.
+  final DateTime endDate;
+
+  /// The title of the event.
+  final String title;
+
+  /// The background color of the event.
+  final Color background;
+
+  /// The URL of the icon for the event.
+  final String? iconUrl;
+
+  /// The text color of the event.
+  final Color textColor;
 
   /// Factory constructor to create a [CalendarWeekEvent] from a JSON map.
   /// It handles parsing ISO date strings and hex color codes.

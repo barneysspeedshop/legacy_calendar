@@ -1,8 +1,8 @@
-// Path: lib/widgets/week_grid_calendar.dart
-
 import 'package:flutter/material.dart';
 import 'package:legacy_calendar/calendar_month_event.dart'; // Added import
+import 'package:legacy_calendar/calendar_month_view_model.dart';
 import 'package:legacy_calendar/event_tooltip_wrapper.dart';
+import 'package:provider/provider.dart';
 
 /// Utility to compare dates by year, month, day.
 bool isSameDay(DateTime a, DateTime b) =>
@@ -82,6 +82,13 @@ class WeekGridCalendar extends StatelessWidget {
   final double eventVerticalSpacing;
   final double calendarHeight;
   final double scale;
+  final void Function(DateTime) onDateTapped;
+  final void Function(DateTime) onDateLongPress;
+  final void Function(DateTime) onDragStart;
+  final void Function(DateTime) onDragUpdate;
+  final void Function() onDragEnd;
+  final void Function(CalendarMonthEvent) onEventEdit;
+  final void Function(CalendarMonthEvent) onEventDelete;
 
   const WeekGridCalendar({
     required this.week,
@@ -94,6 +101,13 @@ class WeekGridCalendar extends StatelessWidget {
     required this.showEventListModal,
     required this.calendarHeight,
     required this.scale,
+    required this.onDateTapped,
+    required this.onDateLongPress,
+    required this.onDragStart,
+    required this.onDragUpdate,
+    required this.onDragEnd,
+    required this.onEventEdit,
+    required this.onEventDelete,
     super.key,
   });
 
@@ -151,6 +165,7 @@ class WeekGridCalendar extends StatelessWidget {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final viewModel = Provider.of<CalendarMonthViewModel>(context);
 
     return Table(
       border: TableBorder.all(
@@ -169,17 +184,55 @@ class WeekGridCalendar extends StatelessWidget {
       },
       children: List.generate(fixedWeeks, (week) {
         final weekStart = firstDay.add(Duration(days: week * 7 - firstWeekday));
+        final startOfWeekForPan =
+            DateTime.utc(this.week.year, this.week.month, this.week.day)
+                .subtract(Duration(days: this.week.weekday % 7));
         return TableRow(
           children: List.generate(7, (day) {
             final currentDay = weekStart.add(Duration(days: day));
-            return Container(
-              height: rowHeight,
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                '${currentDay.day}',
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+            bool isSelected = false;
+            if (viewModel.selectionStart != null) {
+              if (viewModel.selectionEnd == null) {
+                isSelected = isSameDay(currentDay, viewModel.selectionStart!);
+              } else {
+                final orderedSelection =
+                    viewModel.selectionStart!.isBefore(viewModel.selectionEnd!)
+                        ? [viewModel.selectionStart!, viewModel.selectionEnd!]
+                        : [viewModel.selectionEnd!, viewModel.selectionStart!];
+                isSelected = currentDay.isAfter(orderedSelection[0]
+                        .subtract(const Duration(days: 1))) &&
+                    currentDay.isBefore(
+                        orderedSelection[1].add(const Duration(days: 1)));
+              }
+            }
+            return GestureDetector(
+              onTap: () => onDateTapped(currentDay),
+              onLongPress: () => onDateLongPress(currentDay),
+              onPanStart: (details) => onDragStart(currentDay),
+              onPanUpdate: (details) {
+                final RenderBox renderBox =
+                    context.findRenderObject() as RenderBox;
+                final localPosition =
+                    renderBox.globalToLocal(details.globalPosition);
+                final dayWidth = renderBox.size.width / 7;
+                final dayIndex = (localPosition.dx / dayWidth).floor();
+                final selectedDay =
+                    startOfWeekForPan.add(Duration(days: dayIndex));
+                onDragUpdate(selectedDay);
+              },
+              onPanEnd: (details) => onDragEnd(),
+              child: Container(
+                height: rowHeight,
+                color: isSelected
+                    ? theme.primaryColor.withValues(alpha: 0.3)
+                    : null,
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  '${currentDay.day}',
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
             );

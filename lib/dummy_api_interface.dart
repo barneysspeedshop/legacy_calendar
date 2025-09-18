@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:legacy_calendar/abstract_api_interface.dart';
 import 'package:legacy_calendar/calendar_month_event.dart';
 
+/// A dummy implementation of the [AbstractApiInterface] for testing purposes.
 class DummyApiInterface implements AbstractApiInterface {
-  static final List<CalendarMonthEvent> _allDummyEvents = [
+  /// A list of all dummy events.
+  static final List<CalendarMonthEvent> allDummyEvents = [
     // Multi-day event spanning across the current date
     CalendarMonthEvent(
       id: '1',
@@ -54,7 +56,7 @@ class DummyApiInterface implements AbstractApiInterface {
     final endOfMonth = DateTime.utc(displayDate.year, displayDate.month + 1, 0)
         .add(const Duration(days: 1));
 
-    return _allDummyEvents.where((event) {
+    return allDummyEvents.where((event) {
       return event.startDate.isBefore(endOfMonth) &&
           event.endDate.isAfter(startOfMonth);
     }).toList();
@@ -73,7 +75,7 @@ class DummyApiInterface implements AbstractApiInterface {
             7)); // Assuming Sunday is the first day of the week
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
 
-    return _allDummyEvents.where((event) {
+    return allDummyEvents.where((event) {
       return event.startDate.isBefore(endOfWeek) &&
           event.endDate.isAfter(startOfWeek);
     }).toList();
@@ -91,9 +93,38 @@ class DummyApiInterface implements AbstractApiInterface {
         DateTime.utc(displayDate.year, displayDate.month, displayDate.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
-    return _allDummyEvents.where((event) {
+    return allDummyEvents.where((event) {
       return event.startDate.isBefore(endOfDay) &&
           event.endDate.isAfter(startOfDay);
     }).toList();
+  }
+
+  @override
+  Future<CalendarMonthEvent> createEvent(CalendarMonthEvent event) async {
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate network delay
+    final newEvent = event.copyWith(id: DateTime.now().toIso8601String());
+    allDummyEvents.add(newEvent);
+    return newEvent;
+  }
+
+  @override
+  Future<CalendarMonthEvent> updateEvent(CalendarMonthEvent event) async {
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate network delay
+    final index = allDummyEvents.indexWhere((e) => e.id == event.id);
+    if (index != -1) {
+      allDummyEvents[index] = event;
+      return event;
+    } else {
+      throw Exception('Event not found');
+    }
+  }
+
+  @override
+  Future<void> deleteEvent(String eventId) async {
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate network delay
+    allDummyEvents.removeWhere((e) => e.id == eventId);
   }
 }

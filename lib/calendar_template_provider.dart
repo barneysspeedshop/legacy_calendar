@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:legacy_calendar/abstract_api_interface.dart';
-import 'package:legacy_calendar/calendar_month_event.dart';
+import 'package:legacy_calendar/dummy_api_interface.dart';
 
+/// A provider for managing calendar templates.
 class CalendarTemplateProvider extends ChangeNotifier {
   final List<Map<String, dynamic>> _availableTemplates = [];
   final List<dynamic> _listViewColumns = [];
@@ -10,35 +11,33 @@ class CalendarTemplateProvider extends ChangeNotifier {
   final bool _isUpdatingDefault = false;
   final bool _hasLoaded = false;
 
+  /// A list of available templates.
   List<Map<String, dynamic>> get availableTemplates => _availableTemplates;
+
+  /// A list of columns for the list view.
   List<dynamic> get listViewColumns => _listViewColumns;
+
+  /// The ID of the selected template.
   String? get selectedTemplateId => _selectedTemplateId;
+
+  /// Whether the templates are being loaded.
   bool get isLoading => _isLoading;
+
+  /// Whether the default template is being updated.
   bool get isUpdatingDefault => _isUpdatingDefault;
+
+  /// Whether the templates have been loaded.
   bool get hasLoaded => _hasLoaded;
 
+  /// Loads the templates if they haven't been loaded yet.
   Future<void> loadTemplatesIfNeeded({String? initialTemplateId}) async {
     if (_hasLoaded || _isLoading) return;
 
     _isLoading = true;
     notifyListeners();
-
-    // try {
-    //   final String jsonString = await rootBundle.loadString('assets/dummy_columns.json');
-    //   _listViewColumns = json.decode(jsonString) as List<dynamic>;
-
-    //   _availableTemplates = [{"id": "dummy-template-id", "name": "Default View"}];
-    //   _selectedTemplateId = initialTemplateId ?? "dummy-template-id";
-
-    //   _hasLoaded = true;
-    // } catch (e) {
-    //   debugPrint("CalendarTemplateProvider: Error loading dummy columns: $e");
-    // } finally {
-    //   _isLoading = false;
-    //   debugPrint("Notifying listeners from CalendarTemplateProvider");
-    // }
   }
 
+  /// Sets the selected template ID.
   Future<void> setSelectedTemplateId(String? newTemplateId) async {
     if (newTemplateId == null || _selectedTemplateId == newTemplateId) {
       return;
@@ -47,38 +46,8 @@ class CalendarTemplateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns the API for the given template ID.
   AbstractApiInterface getApiForTemplate(String? templateId) {
-    // In a real app, you would have a mapping from templateId to a specific API implementation.
-    // For this example, we'll just return a dummy implementation.
-    return DummyApi();
-  }
-}
-
-class DummyApi implements AbstractApiInterface {
-  @override
-  Future<List<CalendarMonthEvent>> fetchDayEvents(
-      {required DateTime displayDate,
-      required bool parentElementsOnly,
-      String? templateId}) async {
-    // Dummy implementation
-    return [];
-  }
-
-  @override
-  Future<List<CalendarMonthEvent>> fetchMonthEvents(
-      {required DateTime displayDate,
-      required bool parentElementsOnly,
-      String? templateId}) async {
-    // Dummy implementation
-    return [];
-  }
-
-  @override
-  Future<List<CalendarMonthEvent>> fetchWeekEvents(
-      {required DateTime displayDate,
-      required bool parentElementsOnly,
-      String? templateId}) async {
-    // Dummy implementation
-    return [];
+    return DummyApiInterface();
   }
 }

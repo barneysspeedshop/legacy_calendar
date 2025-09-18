@@ -1,19 +1,23 @@
 import 'package:legacy_calendar/calendar_month_event.dart';
 import 'package:legacy_calendar/abstract_api_interface.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
-import 'package:flutter/material.dart'; // Import for DateUtils
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
+/// A repository for fetching and caching calendar month events.
 class CalendarMonthRepository {
+  /// Creates a new instance of [CalendarMonthRepository].
+  CalendarMonthRepository({required this.apiInterface});
+
+  /// The API interface for fetching calendar events.
   final AbstractApiInterface apiInterface;
   final Map<String, List<CalendarMonthEvent>> _cache = {}; // Cache for events
-
-  CalendarMonthRepository({required this.apiInterface});
 
   // Helper to generate cache key for a month
   String _getMonthCacheKey(DateTime date, bool parentElementsOnly) {
     return '${DateFormat('yyyy-MM').format(date)}-$parentElementsOnly';
   }
 
+  /// Fetches the calendar events for a specific month.
   Future<List<CalendarMonthEvent>> fetchMonthEvents({
     String? templateId,
     required DateTime displayDate,
@@ -33,6 +37,7 @@ class CalendarMonthRepository {
     return events;
   }
 
+  /// Fetches the calendar events for a specific week.
   Future<List<CalendarMonthEvent>> fetchWeekEvents({
     String? templateId,
     required DateTime displayDate,
@@ -44,10 +49,8 @@ class CalendarMonthRepository {
       parentElementsOnly: parentElementsOnly,
     );
 
-    // Filter events for the specific week
-    final startOfWeek = displayDate.subtract(Duration(
-        days: displayDate.weekday -
-            1)); // Assuming Monday is the first day of the week
+    final startOfWeek =
+        displayDate.subtract(Duration(days: displayDate.weekday - 1));
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
 
     return allMonthEvents.where((event) {
@@ -56,6 +59,7 @@ class CalendarMonthRepository {
     }).toList();
   }
 
+  /// Fetches the calendar events for a specific day.
   Future<List<CalendarMonthEvent>> fetchDayEvents({
     String? templateId,
     required DateTime displayDate,
@@ -67,22 +71,41 @@ class CalendarMonthRepository {
       parentElementsOnly: parentElementsOnly,
     );
 
-    // Filter events for the specific day
     final startOfDay = DateUtils.dateOnly(displayDate);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     return allMonthEvents.where((event) {
-      // The standard interval overlap check is: A.start < B.end && B.start < A.end
-      // This handles multi-day events correctly.
       final overlaps = event.startDate.isBefore(endOfDay) &&
           event.endDate.isAfter(startOfDay);
 
-      // We also add a check for events that start on the given day. This is a more robust
-      // way to catch single-day events, especially if their end date representation is inconsistent
-      // (e.g., start and end time are identical), which would cause the `overlaps` check to fail.
       final startsOnDay = DateUtils.isSameDay(event.startDate, displayDate);
 
       return startsOnDay || overlaps;
     }).toList();
+  }
+
+  /// Creates a new calendar event.
+  Future<CalendarMonthEvent> createEvent(CalendarMonthEvent event) async {
+    final newEvent = await apiInterface.createEvent(event);
+    _cache.clear(); // Invalidate cache
+    return newEvent;
+  }
+
+  /// Updates an existing calendar event.
+  Future<CalendarMonthEvent> updateEvent(CalendarMonthEvent event) async {
+    final updatedEvent = await apiInterface.updateEvent(event);
+    _cache.clear(); // Invalidate cache
+    return updatedEvent;
+  }
+
+  /// Deletes a calendar event.
+  Future<void> deleteEvent(String eventId, DateTime eventDate) async {
+    await apiInterface.deleteEvent(eventId);
+    _cache.clear(); // Invalidate cache
+  }
+
+  /// Clears the cache.
+  void clearCache() {
+    _cache.clear();
   }
 }

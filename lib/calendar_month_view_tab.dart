@@ -1,26 +1,72 @@
-// lib/screens/calendar_month_view_tab.dart
 import 'package:flutter/material.dart';
-// import 'package:calendar/utils/snackbar_helper.dart';
 import 'dart:math' as math;
-
-// import 'package:calendar/services/tab_manager.dart';
-import 'package:legacy_calendar/legacy_calendar.dart'; // Import the public API
+import 'package:legacy_calendar/legacy_calendar.dart';
+import 'package:legacy_calendar/interactive_event_bar.dart';
 import 'package:legacy_calendar/event_list_screen.dart';
 import 'package:legacy_calendar/scale_notifier.dart';
 
 import 'package:legacy_calendar/calendar_template_provider.dart';
 import 'calendar_month_view_model.dart';
-import 'package:provider/provider.dart'; // Keep provider for context.read/watch
+import 'package:provider/provider.dart';
 
+/// A tab that displays a single month in the calendar.
 class CalendarMonthViewTab extends StatefulWidget {
-  final bool showTemplateSelector;
-  final DateTime displayDate; // Added
-
+  /// Creates a new instance of [CalendarMonthViewTab].
   const CalendarMonthViewTab({
     super.key,
     this.showTemplateSelector = true,
-    required this.displayDate, // Added
+    required this.displayDate,
+    required this.onDateTapped,
+    required this.onDateLongPress,
+    required this.onDragStart,
+    required this.onDragUpdate,
+    required this.onDragEnd,
+    required this.onEventEdit,
+    required this.onEventDelete,
+    this.tappedEventId,
+    required this.onEventTapped,
+    this.eventEditIconColor,
+    this.eventDeleteIconColor,
   });
+
+  /// Whether to show the template selector.
+  final bool showTemplateSelector;
+
+  /// The date to display.
+  final DateTime displayDate; // Added
+
+  /// Called when a date is tapped.
+  final void Function(DateTime) onDateTapped;
+
+  /// Called when a date is long-pressed.
+  final void Function(DateTime) onDateLongPress;
+
+  /// Called when a drag gesture starts.
+  final void Function(DateTime) onDragStart;
+
+  /// Called when a drag gesture is updated.
+  final void Function(DateTime) onDragUpdate;
+
+  /// Called when a drag gesture ends.
+  final void Function() onDragEnd;
+
+  /// Called when an event is edited.
+  final void Function(CalendarMonthEvent) onEventEdit;
+
+  /// Called when an event is deleted.
+  final void Function(CalendarMonthEvent) onEventDelete;
+
+  /// The ID of the tapped event.
+  final String? tappedEventId;
+
+  /// Called when an event is tapped.
+  final void Function(String) onEventTapped;
+
+  /// The color of the event edit icon.
+  final Color? eventEditIconColor;
+
+  /// The color of the event delete icon.
+  final Color? eventDeleteIconColor;
 
   @override
   State<CalendarMonthViewTab> createState() => _CalendarMonthViewTabState();
@@ -32,51 +78,25 @@ const double _baseDayNumberDisplaySpace = 28.0;
 const double _baseEventIconSize = 16.0;
 const double _baseEventFontSize = 12.0;
 
+/// The state for a [CalendarMonthViewTab].
 class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
     with AutomaticKeepAliveClientMixin<CalendarMonthViewTab> {
   @override
   bool get wantKeepAlive => true;
 
-  late final CalendarMonthViewModel _viewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = CalendarMonthViewModel(context,
-        initialDate: widget.displayDate); // Changed
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _viewModel.fetchEvents(widget.displayDate); // Changed
-    });
-    _viewModel.addListener(_onViewModelChanged);
-  }
-
   @override
   void didUpdateWidget(covariant CalendarMonthViewTab oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.displayDate != oldWidget.displayDate) {
-      _viewModel.fetchEvents(widget.displayDate);
+      Future.microtask(() {
+        if (!mounted) return;
+        context.read<CalendarMonthViewModel>().fetchEvents(widget.displayDate);
+      });
     }
-  }
-
-  @override
-  void dispose() {
-    _viewModel.removeListener(_onViewModelChanged);
-    _viewModel.dispose();
-    super.dispose();
-  }
-
-  void _onViewModelChanged() {
-    if (!mounted) return;
-    if (_viewModel.errorMessage != null) {
-      // showTopSnackBar(context, message: _viewModel.errorMessage!, isError: true);
-      _viewModel.clearError();
-    }
-    setState(() {});
   }
 
   void _navigateToEventListScreen(
       BuildContext context, DateTime date, List<CalendarMonthEvent> dayEvents) {
-    // Changed type
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -103,7 +123,6 @@ class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
 
   Widget _buildDayOfWeekHeader(BuildContext context) {
     final days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    // final days = ['SUN', 'MON', 'THU', 'SAT'];
     final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -138,7 +157,7 @@ class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
   Widget build(BuildContext context) {
     super.build(context);
     final scale = context.watch<ScaleNotifier>().scale;
-    final viewModel = _viewModel;
+    final viewModel = context.watch<CalendarMonthViewModel>();
 
     return Column(
       children: [
@@ -186,11 +205,10 @@ class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
                                   width: constraints.maxWidth,
                                   height: availableHeight,
                                   child: MonthGridCalendar(
-                                    // Changed to MonthGridCalendar
                                     calendarHeight: availableHeight,
                                     scale: scale,
                                     month: viewModel.displayDate,
-                                    events: viewModel.events,
+                                    events: viewModel.eventsWithPlaceholder,
                                     maxEvents: finalMaxEvents,
                                     dayNumberDisplaySpace:
                                         scaledDayNumberDisplaySpace,
@@ -199,78 +217,77 @@ class _CalendarMonthViewTabState extends State<CalendarMonthViewTab>
                                         scaledEventVerticalSpacing,
                                     showEventListModal:
                                         _navigateToEventListScreen,
+                                    onDateTapped: widget.onDateTapped,
+                                    onDateLongPress: widget.onDateLongPress,
+                                    onDragStart: widget.onDragStart,
+                                    onDragUpdate: widget.onDragUpdate,
+                                    onDragEnd: widget.onDragEnd,
+                                    onEventEdit: widget.onEventEdit,
+                                    onEventDelete: widget.onEventDelete,
                                     eventBuilder: (context, placement) {
                                       final theme = Theme.of(context);
                                       final scale =
                                           context.watch<ScaleNotifier>().scale;
-                                      return InkWell(
-                                        onTap: () {
-                                          // final event = placement.event; // Removed unused variable
-                                          //  if (event.id.isNotEmpty) { // Changed to event.id
-                                          //    // final tabManager = context.read<TabManager>(); // Removed
-                                          //    final String tabPath = '/assignment/${event.id}'; // Changed to event.id
-                                          //    // tabManager.openTab(
-                                          //    //   context: context,
-                                          //    //   path: tabPath,
-                                          //    //   title: event.title,
-                                          //    //   iconUrl: event.iconUrl,
-                                          //    // ); // Removed
-                                          //  }
-                                        },
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 2),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 2, vertical: 1),
-                                          decoration: BoxDecoration(
-                                            color: placement.event.background,
-                                            borderRadius:
-                                                BorderRadius.circular(1),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              if (placement.event.iconUrl !=
-                                                      null &&
-                                                  placement.event.iconUrl!
-                                                      .isNotEmpty)
-                                                Image.network(
-                                                  placement.event.iconUrl!,
-                                                  width: 16,
-                                                  height: 16,
-                                                  errorBuilder: (imgErrorContext,
-                                                          error, stackTrace) =>
-                                                      Icon(Icons.error_outline,
-                                                          size:
-                                                              _baseEventIconSize *
-                                                                  scale,
-                                                          color: Colors.white),
-                                                )
-                                              else
-                                                Icon(Icons.event,
-                                                    size: _baseEventIconSize *
-                                                        scale,
-                                                    color: Colors.white),
-                                              const SizedBox(width: 2),
-                                              Expanded(
-                                                child: Text(
-                                                  placement.event.title,
-                                                  style: theme
-                                                      .textTheme.bodySmall!
-                                                      .copyWith(
-                                                    fontSize:
-                                                        _baseEventFontSize *
-                                                            scale,
-                                                    // fontWeight: FontWeight.bold,
-                                                    color: placement
-                                                        .event.textColor,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                ),
+                                      final event = viewModel
+                                          .eventsWithPlaceholder
+                                          .firstWhere(
+                                              (e) => e.id == placement.event.id,
+                                              orElse: () => viewModel
+                                                  .eventsWithPlaceholder.first);
+                                      return InteractiveEventBar(
+                                        onTap: () =>
+                                            widget.onEventTapped(event.id),
+                                        onEdit: () => widget.onEventEdit(event),
+                                        onDelete: () =>
+                                            widget.onEventDelete(event),
+                                        isSelected:
+                                            widget.tappedEventId == event.id,
+                                        isReadOnly: event.isReadOnly,
+                                        editIconColor:
+                                            widget.eventEditIconColor ??
+                                                event.textColor,
+                                        deleteIconColor:
+                                            widget.eventDeleteIconColor ??
+                                                widget.eventEditIconColor ??
+                                                event.textColor,
+                                        backgroundColor: event.background,
+                                        child: Row(
+                                          children: [
+                                            if (event.iconUrl != null &&
+                                                event.iconUrl!.isNotEmpty)
+                                              Image.network(
+                                                event.iconUrl!,
+                                                width: 16,
+                                                height: 16,
+                                                errorBuilder: (imgErrorContext,
+                                                        error, stackTrace) =>
+                                                    Icon(Icons.error_outline,
+                                                        size:
+                                                            _baseEventIconSize *
+                                                                scale,
+                                                        color: Colors.white),
                                               )
-                                            ],
-                                          ),
+                                            else
+                                              Icon(Icons.event,
+                                                  size: _baseEventIconSize *
+                                                      scale,
+                                                  color: Colors.white),
+                                            const SizedBox(width: 2),
+                                            Expanded(
+                                              child: Text(
+                                                event.title,
+                                                style: theme
+                                                    .textTheme.bodySmall!
+                                                    .copyWith(
+                                                  fontSize: _baseEventFontSize *
+                                                      scale,
+                                                  color: event.textColor,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       );
                                     },

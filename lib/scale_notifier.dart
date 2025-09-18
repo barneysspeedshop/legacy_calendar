@@ -1,4 +1,3 @@
-// lib/providers/scale_notifier.dart
 import 'package:flutter/material.dart';
 
 /// A [ChangeNotifier] that manages a scaling factor for UI elements.
@@ -6,7 +5,7 @@ import 'package:flutter/material.dart';
 class ScaleNotifier extends ChangeNotifier {
   double _scale = 1.0;
   static const double _minScale = 0.5;
-  static const double _maxScale = 2.0; // Adjust max scale as needed
+  static const double _maxScale = 2.0;
   static const double _scaleIncrement = 0.1;
 
   /// The current scale factor.
@@ -42,7 +41,6 @@ class ScaleNotifier extends ChangeNotifier {
   }
 }
 
-// Intents for keyboard shortcuts or other actions that might trigger zoom changes.
 class ZoomInIntent extends Intent {}
 
 class ZoomOutIntent extends Intent {}
